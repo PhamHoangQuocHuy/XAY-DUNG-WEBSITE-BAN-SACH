@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Contracts\Session\Session as SessionSession;
 use Illuminate\Support\Facades\Redirect;
 session_start();
 
@@ -19,7 +18,11 @@ class AdminController extends Controller
     public function dashboard(Request $request){
         $admin_email =$request ->admin_email;
         $admin_password =$request -> admin_password;
-        $result = DB ::table('user')->where ('email',$admin_email)->where('password',$admin_password)->first();
+        $result = DB ::table('user')
+        ->where ('email',$admin_email)
+        ->where('password',$admin_password)
+        ->where('role','admin')
+        ->first();
         if($result) {
             Session::put('username',$result->username);
             Session::put('user_id',$result->user_id);

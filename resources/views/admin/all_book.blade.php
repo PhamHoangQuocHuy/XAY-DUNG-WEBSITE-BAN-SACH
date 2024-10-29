@@ -3,7 +3,7 @@
     <div class="table-agile-info">
         <div class="panel panel-default">
             <div class="panel-heading" style="font-weight: bold">
-                LIỆT KÊ DANH MỤC SÁCH
+                LIỆT KÊ SÁCH
             </div>
             <div class="row w3-res-tb">
                 <div class="col-sm-5 m-b-xs">
@@ -42,39 +42,28 @@
                                     <input type="checkbox"><i></i>
                                 </label>
                             </th>
-                            <th style="text-align: center;color: black">TÊN DANH MỤC</th>
-                            <th style="text-align: center;color: black">TRẠNG THÁI</th>
-                            
+                            <th style="text-align: center;color: black">SỐ THỨ TỰ</th>
+                            <th style="text-align: center;color: black">TÊN SÁCH</th>
                             <th style="text-align: center; width: 100px;color: black">THAO TÁC</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($all_category as $key => $cate)
+                        @foreach ($all_book as $key => $book)
                             <tr>
-                                <td style="text-align: center;align-content: center"><label class="i-checks m-b-none"><input
-                                            type="checkbox" name="post[]"><i></i></label></td>
-                                <td style="text-align: center;align-content: center; color: black">{{ $cate->category_name }}</td>
-                                <td style="text-align: center;align-content: center"><span class="text-ellipsis">
-                                        <?php
-                                        if ($cate->status != 'inactive') {
-                                            ?>
-                                        <a href="{{ URL::to('/active-category/' . $cate->category_id) }}"><span
-                                                class="fa-toggle-styling fa fa-toggle-on"></span></a>;
-                                        <?php
-                                        } else {
-                                            ?>
-                                        <a href="{{ URL::to('/inactive-category/' . $cate->category_id) }}"><span
-                                                class="fa-toggle-styling fa fa-toggle-off"></span></a>;
-                                        <?php
-                                        }
-                                        ?>
-                                    </span></td>
+                                <td style="text-align: center;align-content: center">
+                                    <label class="i-checks m-b-none">
+                                        <input type="checkbox" name="post[]"><i></i>
+                                    </label>
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">{{ $key + 1 }}</td>
+                                <td style="text-align: center;align-content: center; color: black">{{ $book->book_name }}</td>
                                 <td style="text-align: center; align-content: center;">
-                                    <a href="{{URL::to('edit-category/'. $cate->category_id)}}" class="active" ui-toggle-class="">
-                                        <i class="fa fa-wrench text-info text-active"style="color: #007bff; font-size: 30px; margin: 0 5px;"></i>
+                                    <a href="{{ URL::to('edit-book/' . $book->book_id) }}" class="active" ui-toggle-class="">
+                                        <i class="fa fa-wrench text-info text-active" style="color: #007bff; font-size: 30px; margin: 0 5px;"></i>
                                     </a>
-                                    <a onclick="return confirm ('Bạn có chắc muốn xóa danh mục: {{ $cate->category_name }}?')" href="{{URL::to('delete-category/'. $cate->category_id)}}">
-                                        <i class="fa fa-trash text-danger" style="font-size: 30px;margin: 0 5px;"></i>
+                                    <a onclick="return confirm('Bạn có chắc muốn xóa sách: {{ $book->book_name }}?')"
+                                        href="{{ URL::to('delete-book/' . $book->book_id) }}">
+                                        <i class="fa fa-trash text-danger" style="font-size: 30px; margin: 0 5px;"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -84,7 +73,6 @@
             </div>
             <footer class="panel-footer">
                 <div class="row">
-
                     <div class="col-sm-5 text-center">
                         <small class="text-muted inline m-t-sm m-b-sm">showing 20-30 of 50 items</small>
                     </div>

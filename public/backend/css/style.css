@@ -197,6 +197,7 @@ ul.sidebar-menu li a.active i {
     transition:all .3s ease-in-out;
 }
 .footer {
+    margin-top: auto;
     background: #d19a98;
     padding: 20px;
 }
@@ -3145,4 +3146,12 @@ span.text-alert {
     text-align: center;
     width: 100%;
     font-weight: bold;
+}
+span.fa-toggle-styling.fa.fa-toggle-off{
+    font-size: 28px;
+    color: red;
+}
+span.fa-toggle-styling.fa.fa-toggle-on{
+    font-size: 28px;
+    color: green;
 }

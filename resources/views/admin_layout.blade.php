@@ -1,5 +1,6 @@
 {{-- Trang quan ly cua admin --}}
 <!DOCTYPE html>
+
 <head>
     <title>ADMIN DASHBOARD</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -57,19 +58,19 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                             <img alt="" src="{{ asset('public/backend/images/2.png') }}">
                             <span class="username">
                                 <?php
-                                $name= Session::get('username');
-                                if($name){
+                                $name = Session::get('username');
+                                if ($name) {
                                     echo $name;
                                 }
-                            ?>
-                
+                                ?>
+
                             </span>
                             <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu extended logout">
                             <li><a href="#"><i class=" fa fa-suitcase"></i>Profile</a></li>
                             <li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
-                            <li><a href="{{URL::to('/logout')}}"><i class="fa fa-key"></i> Đăng xuất</a></li>
+                            <li><a href="{{ URL::to('/logout') }}"><i class="fa fa-key"></i> Đăng xuất</a></li>
                         </ul>
                     </li>
                     <!-- user login dropdown end -->
@@ -91,17 +92,53 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                                 <span>Tổng quan</span>
                             </a>
                         </li>
-
+                        {{-- QUẢN LÝ DANH MỤC --}}
                         <li class="sub-menu">
                             <a href="javascript:;">
                                 <i class="fa fa-book"></i>
                                 <span>Quản lý danh mục</span>
                             </a>
                             <ul class="sub">
-                                <li><a href="{{URL::to('/add-category')}}">Thêm danh mục sách</a></li>
-                                <li><a href="{{URL::to('/all-category')}}">Liệt kê danh mục sách</a></li>
+                                <li><a href="{{ URL::to('/add-category') }}">Thêm danh mục sách</a></li>
+                                <li><a href="{{ URL::to('/all-category') }}">Liệt kê danh mục sách</a></li>
                             </ul>
                         </li>
+                        {{-- QUẢN LÝ TÁC GIẢ --}}
+                        <li class="sub-menu">
+                            <a href="javascript:;">
+                                <i class="fa fa-book"></i>
+                                <span>Quản lý tác giả</span>
+                            </a>
+                            <ul class="sub">
+                                <li><a href="{{ URL::to('/add-author') }}">Thêm tác giả</a></li>
+                                <li><a href="{{ URL::to('/all-author') }}">Liệt kê tác giả</a></li>
+                            </ul>
+                        </li>
+                        {{-- QUẢN LÝ NHÀ CUNG CẤP --}}
+                        <li class="sub-menu">
+                            <a href="javascript:;">
+                                <i class="fa fa-book"></i>
+                                <span>Quản lý nhà cung cấp</span>
+                            </a>
+                            <ul class="sub">
+                                <li><a href="{{ URL::to('/add-supplier') }}">Thêm nhà cung cấp</a></li>
+                                <li><a href="{{ URL::to('/all-supplier') }}">Liệt kê nhà cung cấp</a></li>
+                            </ul>
+                        </li>
+
+                        {{-- QUẢN LÝ SÁCH --}}
+                        <li class="sub-menu">
+                            <a href="javascript:;">
+                                <i class="fa fa-book"></i>
+                                <span>Quản lý sách</span>
+                            </a>
+                            <ul class="sub">
+                                <li><a href="{{ URL::to('/add-book') }}">Thêm sách</a></li>
+                                <li><a href="{{ URL::to('/all-book') }}">Liệt kê sách</a></li>
+                            </ul>
+                        </li>
+
+
                     </ul>
                 </div>
                 <!-- sidebar menu end-->
@@ -112,11 +149,11 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
         <!--main content start-->
         <section id="main-content">
             <section class="wrapper">
-                @yield('admin_content') 
+                @yield('admin_content')
                 {{-- lay secton admin_content trong dashboard --}}
             </section>
             <!-- footer -->
-            <div class="footer" style="bottom: 0; width: 100%;position: fixed">
+            <div class="footer">
                 <div class="wthree-copyright">
                     <p style="text-align: center">© 2017 Visitors. All rights reserved | Design by <a
                             href="http://w3layouts.com">W3layouts</a></p>
