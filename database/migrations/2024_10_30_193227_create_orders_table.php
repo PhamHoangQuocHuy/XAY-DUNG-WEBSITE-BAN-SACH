@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('shipping_address');
             $table->enum('status', ['Processing', 'Delivered', 'Cancelled'])->default('Processing');
             $table->unsignedInteger('quantity');
-            $table->decimal('price', 10, 0)->unsigned();
-            $table->decimal('totalprice', 10, 0)->unsigned();
+            $table->unsignedInteger('price');
+            $table->unsignedInteger('totalprice');
         });
     }
 

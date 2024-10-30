@@ -42,8 +42,20 @@
                                     <input type="checkbox"><i></i>
                                 </label>
                             </th>
-                            <th style="text-align: center;color: black">SỐ THỨ TỰ</th>
                             <th style="text-align: center;color: black">TÊN SÁCH</th>
+                            <th style="text-align: center;color: black">ISBN</th>
+                            <th style="text-align: center;color: black">TÁC GIẢ</th>
+                            <th style="text-align: center;color: black">THỂ LOẠI</th>
+                            <th style="text-align: center;color: black">NHÀ CUNG CẤP</th>
+                            <th style="text-align: center;color: black">NHÀ XUẤT BẢN</th>
+                            <th style="text-align: center;color: black">NGÀY XUẤT BẢN</th>
+                            <th style="text-align: center;color: black">SỐ LƯỢNG</th>
+                            <th style="text-align: center;color: black">GIÁ BÁN</th>
+                            <th style="text-align: center;color: black">MÔ TẢ SÁCH</th>
+                            <th style="text-align: center;color: black">HÌNH ẢNH</th>
+                            <th style="text-align: center;color: black">NGÔN NGỮ</th>
+                            <th style="text-align: center;color: black">TỪ KHÓA</th>
+                            <th style="text-align: center;color: black">TRẠNG THÁI</th>
                             <th style="text-align: center; width: 100px;color: black">THAO TÁC</th>
                         </tr>
                     </thead>
@@ -55,11 +67,66 @@
                                         <input type="checkbox" name="post[]"><i></i>
                                     </label>
                                 </td>
-                                <td style="text-align: center;align-content: center; color: black">{{ $key + 1 }}</td>
-                                <td style="text-align: center;align-content: center; color: black">{{ $book->book_name }}</td>
-                                <td style="text-align: center; align-content: center;">
-                                    <a href="{{ URL::to('edit-book/' . $book->book_id) }}" class="active" ui-toggle-class="">
-                                        <i class="fa fa-wrench text-info text-active" style="color: #007bff; font-size: 30px; margin: 0 5px;"></i>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $limitWordsFunc($book->book_name, 3) }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ substr($book->isbn, 0, 5) }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $book->author_name }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $book->category_name }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $book->supplier_name }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $book->publisher }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $book->publication_date }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $book->quantity }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $book->formatted_price }} VNĐ
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $limitWordsFunc($book->description, 5) }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    <img src="public/uploads/product/{{ $book->image }}" width="100" height="100"
+                                        alt="">
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $limitWordsFunc($book->language, 3) }}
+                                </td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $limitWordsFunc($book->tags, 3) }}
+                                </td>
+                                <td style="text-align: center;align-content: center"><span class="text-ellipsis">
+                                    <?php
+                                    if ($book->status != 'inactive') {
+                                        ?>
+                                    <a href="{{ URL::to('/active-book/' . $book->book_id) }}"><span
+                                            class="fa-toggle-styling fa fa-toggle-on"></span></a>;
+                                    <?php
+                                    } else {
+                                        ?>
+                                    <a href="{{ URL::to('/inactive-book/' . $book->book_id) }}"><span
+                                            class="fa-toggle-styling fa fa-toggle-off"></span></a>;
+                                    <?php
+                                    }
+                                    ?>
+                                </span></td>
+                            <td style="text-align: center; align-content: center;">
+                                    <a href="{{ URL::to('edit-book/' . $book->book_id) }}" class="active"
+                                        ui-toggle-class="">
+                                        <i class="fa fa-wrench text-info text-active"
+                                            style="color: #007bff; font-size: 30px; margin: 0 5px;"></i>
                                     </a>
                                     <a onclick="return confirm('Bạn có chắc muốn xóa sách: {{ $book->book_name }}?')"
                                         href="{{ URL::to('delete-book/' . $book->book_id) }}">

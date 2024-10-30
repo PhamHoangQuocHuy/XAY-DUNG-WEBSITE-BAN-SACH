@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('book', function (Blueprint $table) {
             $table->foreign(['author_id'], 'book_ibfk_1')->references(['author_id'])->on('author')->onUpdate('restrict')->onDelete('restrict');
             $table->foreign(['category_id'], 'book_ibfk_2')->references(['category_id'])->on('category')->onUpdate('restrict')->onDelete('restrict');
+            $table->foreign(['supplier_id'], 'book_ibfk_3')->references(['supplier_id'])->on('supplier')->onUpdate('restrict')->onDelete('restrict');
         });
     }
 
@@ -25,6 +26,7 @@ return new class extends Migration
         Schema::table('book', function (Blueprint $table) {
             $table->dropForeign('book_ibfk_1');
             $table->dropForeign('book_ibfk_2');
+            $table->dropForeign('book_ibfk_3');
         });
     }
 };

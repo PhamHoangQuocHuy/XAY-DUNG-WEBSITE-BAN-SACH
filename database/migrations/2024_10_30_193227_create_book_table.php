@@ -17,10 +17,11 @@ return new class extends Migration
             $table->char('isbn', 13)->unique('isbn');
             $table->integer('author_id')->index('author_id');
             $table->integer('category_id')->index('category_id');
+            $table->integer('supplier_id')->index('supplier_id');
             $table->string('publisher');
-            $table->date('publication _date');
-            $table->integer('quantity');
-            $table->decimal('price', 10, 0)->unsigned();
+            $table->date('publication_date');
+            $table->unsignedInteger('quantity');
+            $table->unsignedInteger('price');
             $table->text('description');
             $table->string('image');
             $table->string('language', 50);

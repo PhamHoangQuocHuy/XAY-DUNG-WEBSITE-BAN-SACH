@@ -56,7 +56,7 @@ Route::post('/save-supplier', [SupplierController::class, 'save_supplier']);
 Route::post('/update-supplier/{supplier_id}', [SupplierController::class, 'update_supplier']);
 
 
-//Product
+//Book
 Route::get('/add-book', [ProductController::class, 'add_book']);
 Route::get('/edit-book/{book_id}', [ProductController::class, 'edit_book']);
 Route::get('/delete-book/{book_id}', [ProductController::class, 'delete_book']);

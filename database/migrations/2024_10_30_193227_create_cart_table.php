@@ -18,8 +18,8 @@ return new class extends Migration
             $table->integer('book_id')->index('book_id');
             $table->string('book_name');
             $table->unsignedInteger('quantity');
-            $table->decimal('price', 10, 0)->unsigned();
-            $table->decimal('totalprice', 10, 0)->unsigned();
+            $table->unsignedInteger('price');
+            $table->unsignedInteger('totalprice');
             $table->dateTime('date');
         });
     }
