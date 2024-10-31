@@ -1,11 +1,11 @@
 @extends('layout')
 @section('content')
-    {{-- đặt tên section và gọi bên layout bằng hàm @yield('cùng tên với section') và phải @endsection ở cuối --}}
-
     <div class="features_items">
         <!--features_items-->
-        <h2 class="title text-center">SẢN PHẨM MỚI NHẤT</h2>
-        @foreach ($all_book as $key => $book)
+        @foreach($cate_name as $key=> $name)
+        <h2 class="title text-center" style="padding-top: 5px">{{$name->category_name}}</h2>
+        @endforeach
+        @foreach ($category_by_id as $key => $book)
             <div class="col-sm-4">
                 <div class="product-image-wrapper">
                     <div class="single-products">

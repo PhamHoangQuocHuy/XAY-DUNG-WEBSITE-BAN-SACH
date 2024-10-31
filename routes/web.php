@@ -16,6 +16,11 @@ use App\Http\Controllers\SupplierController; // gọi controller của supplier
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/trang-chu', [HomeController::class, 'index']);
 
+// Danh mục sách trang chủ
+Route::get('/danh-muc-sach/{category_id}', [CategoryProduct::class, 'show_category_home']);
+Route::get('/danh-muc-tac-gia/{author_id}', [AuthorController::class, 'show_author_home']);
+Route::get('/danh-muc-nxb/{book_id}', [ProductController::class, 'show_nxb_home']);
+
 //Admin
 Route::get('/admin', [AdminController::class, 'index']);
 Route::get('/dashboard', [AdminController::class, 'show_dashboard']);

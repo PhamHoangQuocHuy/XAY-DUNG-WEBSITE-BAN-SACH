@@ -86,7 +86,7 @@
                                     {{ $book->publisher }}
                                 </td>
                                 <td style="text-align: center;align-content: center; color: black">
-                                    {{ $book->publication_date }}
+                                    {{ date('d/m/Y', strtotime($book->publication_date)) }}
                                 </td>
                                 <td style="text-align: center;align-content: center; color: black">
                                     {{ $book->quantity }}

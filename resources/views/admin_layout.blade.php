@@ -155,8 +155,8 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
             <!-- footer -->
             <div class="footer">
                 <div class="wthree-copyright">
-                    <p style="text-align: center">© 2017 Visitors. All rights reserved | Design by <a
-                            href="http://w3layouts.com">W3layouts</a></p>
+                    <p style="text-align: center">Copyright © 2024 BOOK.VN Inc. All rights reserved. | Design by <a
+                            href="#">PHẠM HOÀNG QUỐC HUY</a></p>
                 </div>
             </div>
             <!-- / footer -->

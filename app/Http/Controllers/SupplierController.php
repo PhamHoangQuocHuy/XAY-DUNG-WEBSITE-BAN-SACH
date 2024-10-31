@@ -9,14 +9,27 @@ use Illuminate\Support\Facades\Redirect;
 
 class SupplierController extends Controller
 {
+    // Kiểm tra đăng nhập không cho truy cập thẳng
+    public function AuthLogin()
+    {
+        $user_id = Session::get('user_id');
+        if ($user_id) {
+            return Redirect::to('dashboard');
+        } else {
+            return Redirect::to('admin')->send();
+        }
+    }
+
     public function add_supplier()
     {
+        $this->AuthLogin();
         return view('/admin.add_supplier');
     }
 
     // HIỂN THỊ TOÀN BỘ NHÀ CUNG CẤP
     public function all_supplier()
     {
+        $this->AuthLogin();
         $all_supplier = DB::table('supplier')->get();
         $manager_supplier = view('admin.all_supplier')->with('all_supplier', $all_supplier);
         return view('admin_layout')->with('admin.all_supplier', $manager_supplier);
@@ -25,6 +38,7 @@ class SupplierController extends Controller
     // THÊM NHÀ CUNG CẤP
     public function save_supplier(Request $request)
     {
+        $this->AuthLogin();
         // Thêm validation cho số điện thoại và email
         $request->validate([
             'supplier_name' => 'required|regex:/^[\p{L} ]+$/u', // Chỉ cho phép ký tự chữ và khoảng trắng
@@ -53,6 +67,7 @@ class SupplierController extends Controller
     // CHỈNH SỬA TRẠNG THÁI
     public function active_supplier($sup_id)
     {
+        $this->AuthLogin();
         DB::table('supplier')->where('supplier_id', $sup_id)->update(['status' => 'inactive']);
         Session::put('message', 'Đã đổi trạng thái thành không kích hoạt');
         return Redirect::to('all-supplier');
@@ -60,6 +75,7 @@ class SupplierController extends Controller
 
     public function inactive_supplier($sup_id)
     {
+        $this->AuthLogin();
         DB::table('supplier')->where('supplier_id', $sup_id)->update(['status' => 'active']);
         Session::put('message', 'Đã đổi trạng thái thành kích hoạt');
         return Redirect::to('all-supplier');
@@ -68,6 +84,7 @@ class SupplierController extends Controller
     // SỬA NHÀ CUNG CẤP
     public function edit_supplier($sup_id)
     {
+        $this->AuthLogin();
         $edit_supplier = DB::table('supplier')->where('supplier_id', $sup_id)->get();
         $manager_supplier = view('admin.edit_supplier')->with('edit_supplier', $edit_supplier);
         return view('admin_layout')->with('admin.edit_supplier', $manager_supplier);
@@ -75,6 +92,7 @@ class SupplierController extends Controller
 
     public function update_supplier(Request $request, $sup_id)
     {
+        $this->AuthLogin();
         // Thêm validation cho số điện thoại và email
         $request->validate([
             'supplier_name' => 'required|regex:/^[\p{L} ]+$/u',
@@ -104,6 +122,7 @@ class SupplierController extends Controller
     // XÓA NHÀ CUNG CẤP
     public function delete_supplier($sup_id)
     {
+        $this->AuthLogin();
         DB::table('supplier')->where('supplier_id', $sup_id)->delete();
         Session::put('message', 'Xóa nhà cung cấp thành công');
         return Redirect::to('/all-supplier');

@@ -1,18 +1,18 @@
 @extends('layout')
 @section('content')
-    {{-- đặt tên section và gọi bên layout bằng hàm @yield('cùng tên với section') và phải @endsection ở cuối --}}
-
     <div class="features_items">
         <!--features_items-->
-        <h2 class="title text-center">SẢN PHẨM MỚI NHẤT</h2>
-        @foreach ($all_book as $key => $book)
+        @foreach($tacgia_name as $key=> $tg_name)
+        <h2 class="title text-center" style="padding-top: 5px">TÁC GIẢ: {{$tg_name->author_name}}</h2>
+        @endforeach
+        @foreach ($author_by_id as $key => $product)
             <div class="col-sm-4">
                 <div class="product-image-wrapper">
                     <div class="single-products">
                         <div class="productinfo text-center">
-                            <img src="{{ URL::to('public/uploads/product/' . $book->image) }}" alt="" />
-                            <h2>{{ $book->formatted_price = number_format($book->price, 0, ',', '.') }} VNĐ</h2>
-                            <p>{{ $limitWordsFunc($book->book_name, 8) }}</p>
+                            <img src="{{ URL::to('public/uploads/product/' . $product->image) }}" alt="" />
+                            <h2>{{ $product->formatted_price = number_format($product->price, 0, ',', '.') }} VNĐ</h2>
+                            <p>{{ $product->book_name}}</p>
                             <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Thêm vào
                                 giỏ hàng</a>
                         </div>

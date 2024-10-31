@@ -9,21 +9,46 @@ use Illuminate\Support\Facades\Redirect;
 
 class ProductController extends Controller
 {
+    // Kiểm tra đăng nhập không cho truy cập thẳng
+    public function AuthLogin()
+    {
+        $user_id = Session::get('user_id');
+        if ($user_id) {
+            return Redirect::to('dashboard');
+        } else {
+            return Redirect::to('admin')->send();
+        }
+    }
     public function add_book()
     {
+        $this->AuthLogin();
         $category_book = DB::table('category')->orderBy('category_id', 'asc')->get();
         $author_book = DB::table('author')->orderBy('author_id', 'asc')->get();
         $supplier_book = DB::table('supplier')->orderBy('supplier_id', 'asc')->get();
-        return view('/admin.add_book')->with('category_book', $category_book)->with('author_book', $author_book)->with('supplier_book', $supplier_book);
+        return view('admin.add_book')
+            ->with('category_book', $category_book)
+            ->with('author_book', $author_book)
+            ->with('supplier_book', $supplier_book);
     }
     // HIỂN THỊ TOÀN BỘ SÁCH
     public function all_book()
     {
+        $this->AuthLogin();
         $all_book = DB::table('book')
             ->join('category', 'category.category_id', '=', 'book.category_id')
             ->join('author', 'author.author_id', '=', 'book.author_id')
             ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
-            ->orderby('book.book_id', 'asc')->get()
+            ->orderby('book.book_id', 'asc')
+            ->select(
+                'book.*', // Chọn tất cả các trường từ bảng book
+                'category.category_name',
+                'author.author_name',
+                'supplier.supplier_name',
+                'supplier.supplier_phone',
+                'supplier.supplier_email',
+                'supplier.supplier_address'
+            )
+            ->get()
             ->map(function ($book) {
                 $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
                 return $book;
@@ -39,14 +64,14 @@ class ProductController extends Controller
         // Truyền biến vào view
         $manager_book = view('admin.all_book')->with('all_book', $all_book)->with('limitWordsFunc', $limitWordsFunc);
         return view('admin_layout')->with('admin.all_book', $manager_book);
+        dd($all_book); // Kiểm tra dữ liệu
 
-        // $manager_book = view('admin.all_book')->with('all_book', $all_book)->with('limitWordsFunc', $limitWordsFunc);
-        // return view('admin_layout')->with('content', $manager_book); // Sửa để truyền biến đúng vào view
     }
 
     // THÊM SÁCH
     public function save_book(Request $request)
     {
+        $this->AuthLogin();
         // Thêm validation
         $request->validate([
             //'book_name' => 'required|regex:/^[\p{L} ]+$/u', // Chỉ cho phép ký tự chữ và khoảng trắng
@@ -119,6 +144,7 @@ class ProductController extends Controller
     // CHỈNH SỬA TRẠNG THÁI
     public function active_book($book_id)
     {
+        $this->AuthLogin();
         DB::table('book')->where('book_id', $book_id)->update(['status' => 'inactive']);
         Session::put('message', 'Đã đổi trạng thái thành không kích hoạt');
         return Redirect::to('all-book');
@@ -134,6 +160,7 @@ class ProductController extends Controller
     // SỬA SÁCH
     public function edit_book($book_id)
     {
+        $this->AuthLogin();
         $category_book = DB::table('category')->orderBy('category_id', 'asc')->get();
         $author_book = DB::table('author')->orderBy('author_id', 'asc')->get();
         $supplier_book = DB::table('supplier')->orderBy('supplier_id', 'asc')->get();
@@ -149,6 +176,7 @@ class ProductController extends Controller
 
     public function update_book(Request $request, $book_id)
     {
+        $this->AuthLogin();
         // Thêm validation
         $request->validate([
             //'book_name' => 'required|regex:/^[\p{L} ]+$/u', // Chỉ cho phép ký tự chữ và khoảng trắng
@@ -221,6 +249,7 @@ class ProductController extends Controller
     // XÓA SÁCH
     public function delete_book($book_id)
     {
+        $this->AuthLogin();
         // Lấy thông tin sách để lấy tên hình ảnh
         $book = DB::table('book')->where('book_id', $book_id)->first();
 
@@ -246,10 +275,49 @@ class ProductController extends Controller
     // GIỚI HẠN NỘI DUNG
     function limit_words_with_ellipsis($string, $word_limit)
     {
+        $this->AuthLogin();
         $words = explode(' ', $string);
         if (count($words) > $word_limit) {
             return implode(' ', array_splice($words, 0, $word_limit)) . '...';
         }
         return $string;
+    }
+
+    //END FUNCTION ADMIN PAGE HERE
+    public function show_nxb_home($book_id)
+    {
+        $nxb_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $tacgia_book = DB::table('author')->orderBy('author_id', 'asc')->get(); // thêm biến tacgia_book
+        $category_book = DB::table('category')->where('status', 'active')->orderBy('category_id', 'asc')->get();
+        $all_book = DB::table('book')
+        ->where('status', 'active')
+        ->orderBy('book_id', 'asc')
+        ->take(3) // chỉ lấy 3 nxb
+        ->get();
+
+        // Lấy tên nhà xuất bản từ book_id đã chọn
+        $nxb_name = DB::table('book')
+            ->where('book.book_id', $book_id)
+            ->limit(1)
+            ->pluck('publisher')
+            ->first();
+
+        // Lấy tất cả các sách thuộc nhà xuất bản đó
+        $nxb_by_id = DB::table('book')
+            ->where('publisher', $nxb_name)
+            ->where('status', 'active')
+            ->get();
+
+        return view('pages.nxb.show_nxb')
+            ->with('nxb_book', $nxb_book)
+            ->with('nxb_by_id', $nxb_by_id)
+            ->with('nxb_name', $nxb_name)
+            ->with('all_book', $all_book) // truyền thêm biến tacgia_book
+            ->with('tacgia_book', $tacgia_book) // truyền thêm biến tacgia_book
+            ->with('category', $category_book);
     }
 }
