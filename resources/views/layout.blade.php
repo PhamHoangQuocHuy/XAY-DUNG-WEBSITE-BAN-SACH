@@ -36,8 +36,8 @@
                     <div class="col-sm-6">
                         <div class="contactinfo">
                             <ul class="nav nav-pills">
-                                <li><a href="#"><i class="fa fa-phone"></i> +2 95 01 88 821</a></li>
-                                <li><a href="#"><i class="fa fa-envelope"></i> info@domain.com</a></li>
+                                <li><a href="#" class="hover-effect" style="font-size: 15px;font-weight: bold"><i class="fa fa-phone"></i> +0764 514 276</a></li>
+                                <li><a href="#" class="hover-effect" style="font-size: 15px;font-weight: bold"><i class="fa fa-envelope"></i> quochuy6422@gmail.con</a></li>
                             </ul>
                         </div>
                     </div>
@@ -63,19 +63,18 @@
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="logo pull-left">
-                            <a href="index.html"><img src="{{ 'public/frontend/images/logo.png' }}"
-                                    alt="" /></a>
+                            <a href="{{ URL::to('/trang-chu') }}"><img
+                                    src="{{ asset('public/frontend/images/logo.png') }}" alt="" /></a>
                         </div>
-                        <div class="btn-group pull-right">
+                        {{-- <div class="btn-group pull-right">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default dropdown-toggle usa"
                                     data-toggle="dropdown">
-                                    USA
+                                    Tiền tệ
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Canada</a></li>
-                                    <li><a href="#">UK</a></li>
+                                    <li><a href="#">VNĐ</a></li>
                                 </ul>
                             </div>
 
@@ -90,16 +89,16 @@
                                     <li><a href="#">Pound</a></li>
                                 </ul>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="col-sm-8">
                         <div class="shop-menu pull-right">
                             <ul class="nav navbar-nav">
-                                <li><a href="#"><i class="fa fa-user"></i> Account</a></li>
+                                <li><a href="#"><i class="fa fa-user"></i> TÀI KHOẢN</a></li>
                                 <li><a href="#"><i class="fa fa-star"></i> Wishlist</a></li>
                                 <li><a href="checkout.html"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-                                <li><a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a></li>
-                                <li><a href="login.html"><i class="fa fa-lock"></i> Login</a></li>
+                                <li><a href="cart.html"><i class="fa fa-shopping-cart"></i> GIỎ HÀNG</a></li>
+                                <li><a href="login.html"><i class="fa fa-lock"></i> ĐĂNG NHẬP</a></li>
                             </ul>
                         </div>
                     </div>
@@ -125,13 +124,10 @@
                         <div class="mainmenu pull-left">
                             <ul class="nav navbar-nav collapse navbar-collapse">
                                 <li><a href="{{ URL::to('/trang-chu') }}" class="active">TRANG CHỦ</a></li>
-                                <li class="dropdown"><a href="#">DANH MỤC SÁCH<i
-                                            class="fa fa-angle-down"></i></a>
+                                <li class="dropdown"><a href="#">DANH MỤC SÁCH<i class="fa fa-angle-down"></i></a>
                                     <ul role="menu" class="sub-menu">
                                         <li><a href="shop.html">Products</a></li>
                                     </ul>
-                                </li>
-                                <li><a href="#">TIN TỨC</a>
                                 </li>
                                 <li><a href="404.html">GIỎ HÀNG</a></li>
                                 <li><a href="contact-us.html">LIÊN HỆ</a></li>
@@ -169,13 +165,11 @@
                                     <h2>Free E-Commerce Template</h2>
                                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
                                         incididunt ut labore et dolore magna aliqua. </p>
-                                    <button type="button" class="btn btn-default get">Get it now</button>
+                                    <button type="button" class="btn btn-default get">MUA NGAY</button>
                                 </div>
                                 <div class="col-sm-6">
-                                    <img src="{{ 'public/frontend/images/girl1.jpg' }}" class="girl img-responsive"
-                                        alt="" />
-                                    <img src="{{ 'public/frontend/images/pricing.png' }}" class="pricing"
-                                        alt="" />
+                                    <img src="{{ asset('public/frontend/images/girl1.jpg') }}"
+                                        class="girl img-responsive" alt="" />
                                 </div>
                             </div>
                             <div class="item">
@@ -184,13 +178,11 @@
                                     <h2>100% Responsive Design</h2>
                                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
                                         incididunt ut labore et dolore magna aliqua. </p>
-                                    <button type="button" class="btn btn-default get">Get it now</button>
+                                    <button type="button" class="btn btn-default get">MUA NGAY</button>
                                 </div>
                                 <div class="col-sm-6">
-                                    <img src="{{ 'public/frontend/images/girl1.jpg' }}" class="girl img-responsive"
-                                        alt="" />
-                                    <img src="{{ 'public/frontend/images/pricing.png' }}" class="pricing"
-                                        alt="" />
+                                    <img src="{{ asset('public/frontend/images/girl1.jpg') }}"
+                                        class="girl img-responsive" alt="" />
                                 </div>
                             </div>
 
@@ -200,13 +192,11 @@
                                     <h2>Free Ecommerce Template</h2>
                                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
                                         incididunt ut labore et dolore magna aliqua. </p>
-                                    <button type="button" class="btn btn-default get">Get it now</button>
+                                    <button type="button" class="btn btn-default get">MUA NGAY</button>
                                 </div>
                                 <div class="col-sm-6">
-                                    <img src="{{ 'public/frontend/images/girl1.jpg' }}" class="girl img-responsive"
-                                        alt="" />
-                                    <img src="{{ 'public/frontend/images/pricing.png' }}" class="pricing"
-                                        alt="" />
+                                    <img src="{{ asset('public/frontend/images/girl1.jpg') }}"
+                                        class="girl img-responsive" alt="" />
                                 </div>
                             </div>
 
@@ -238,7 +228,7 @@
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
                                         <h4 class="panel-title">
-                                            <a
+                                            <a class="hover-effect" style="font-size: 15px;font-weight: bold"
                                                 href="{{ URL::to('/danh-muc-sach/' . $cate->category_id) }}">{{ $cate->category_name }}</a>
                                         </h4>
                                     </div>
@@ -253,7 +243,8 @@
                                 <ul class="nav nav-pills nav-stacked">
                                     <li>
                                         @foreach ($tacgia_book as $key => $tacgia)
-                                            <a href="{{ URL::to('/danh-muc-tac-gia/' . $tacgia->author_id) }}">{{ $tacgia->author_name }}</a>
+                                            <a class="hover-effect" style="font-size: 15px;font-weight: bold"
+                                                href="{{ URL::to('/danh-muc-tac-gia/' . $tacgia->author_id) }}">{{ $tacgia->author_name }}</a>
                                         @endforeach
                                     </li>
                                 </ul>
@@ -265,8 +256,9 @@
                             <div class="brands-name">
                                 <ul class="nav nav-pills nav-stacked">
                                     <li>
-                                        @foreach ($all_book as $key => $book)
-                                            <a href="{{ URL::to('/danh-muc-nxb/' . $book->book_id) }}">{{ $book->publisher }}</a>
+                                        @foreach ($publisher_list as $key => $publisher)
+                                            <a class="hover-effect" style="font-size: 15px;font-weight: bold"
+                                                href="{{ URL::to('/danh-muc-nxb/' . $publisher->book_id) }}">{{ $publisher->publisher }}</a>
                                         @endforeach
                                     </li>
                                 </ul>
@@ -283,149 +275,92 @@
 
     <footer id="footer">
         <!--Footer-->
+        {{-- PAYMENT --}}
         <div class="footer-top">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-2">
                         <div class="companyinfo">
-                            <h2><span>BOOK.VN</span></h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit,sed do eiusmod tempor</p>
+                            <h2><span style="font-weight: bold">Payment Methods</span></h2>
+                            <img class="payment_styling" src="{{ asset('public/frontend/images/payment_methods.jpg') }}" alt="">
                         </div>
                     </div>
-                    <div class="col-sm-7">
-                        <div class="col-sm-3">
-                            <div class="video-gallery text-center">
-                                <a href="#">
-                                    <div class="iframe-img">
-                                        <img src="{{ 'public/frontend/images/iframe1.png' }}" alt="" />
-                                    </div>
-                                    <div class="overlay-icon">
-                                        <i class="fa fa-play-circle-o"></i>
-                                    </div>
-                                </a>
-                                <p>Circle of Hands</p>
-                                <h2>24 DEC 2014</h2>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <div class="video-gallery text-center">
-                                <a href="#">
-                                    <div class="iframe-img">
-                                        <img src="{{ 'public/frontend/images/iframe1.png' }}" alt="" />
-                                    </div>
-                                    <div class="overlay-icon">
-                                        <i class="fa fa-play-circle-o"></i>
-                                    </div>
-                                </a>
-                                <p>Circle of Hands</p>
-                                <h2>24 DEC 2014</h2>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <div class="video-gallery text-center">
-                                <a href="#">
-                                    <div class="iframe-img">
-                                        <img src="{{ 'public/frontend/images/iframe1.png' }}" alt="" />
-                                    </div>
-                                    <div class="overlay-icon">
-                                        <i class="fa fa-play-circle-o"></i>
-                                    </div>
-                                </a>
-                                <p>Circle of Hands</p>
-                                <h2>24 DEC 2014</h2>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-3">
-                            <div class="video-gallery text-center">
-                                <a href="#">
-                                    <div class="iframe-img">
-                                        <img src="{{ 'public/frontend/images/iframe1.png' }}" alt="" />
-                                    </div>
-                                    <div class="overlay-icon">
-                                        <i class="fa fa-play-circle-o"></i>
-                                    </div>
-                                </a>
-                                <p>Circle of Hands</p>
-                                <h2>24 DEC 2014</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-3" style="float: right">
                         <div class="address">
-                            <img src="images/home/map.png" alt="" />
-                            <p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.954410425893!2d106.67525717480439!3d10.73799718940847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f62a90e5dbd%3A0x674d5126513db295!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBDw7RuZyBuZ2jhu4cgU8OgaSBHw7Ju!5e0!3m2!1svi!2s!4v1730443425775!5m2!1svi!2s" 
+                                width="600" height="150" style="border:0;" allowfullscreen="" loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
+        
         <div class="footer-widget">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-2">
                         <div class="single-widget">
-                            <h2>Service</h2>
+                            <h2 class="hover-effect" style="font-size: 20px;font-weight: bold">Dịch Vụ</h2>
                             <ul class="nav nav-pills nav-stacked">
-                                <li><a href="#">Online Help</a></li>
-                                <li><a href="#">Contact Us</a></li>
-                                <li><a href="#">Order Status</a></li>
-                                <li><a href="#">Change Location</a></li>
-                                <li><a href="#">FAQ’s</a></li>
+                                <li><a href="#">Giúp Đỡ Trực Tuyến</a></li>
+                                <li><a href="#">Liên Hệ Chúng Tôi</a></li>
+                                <li><a href="#">Trạng Thái Đơn Hàng</a></li>
+                                <li><a href="#">Thay Đổi Địa Điểm</a></li>
+                                <li><a href="#">Câu Hỏi Thường Gặp</a></li>
                             </ul>
                         </div>
                     </div>
                     <div class="col-sm-2">
                         <div class="single-widget">
-                            <h2>Quock Shop</h2>
+                            <h2 class="hover-effect" style="font-size: 20px;font-weight: bold">BOOK.VN</h2>
                             <ul class="nav nav-pills nav-stacked">
-                                <li><a href="#">T-Shirt</a></li>
-                                <li><a href="#">Mens</a></li>
-                                <li><a href="#">Womens</a></li>
-                                <li><a href="#">Gift Cards</a></li>
-                                <li><a href="#">Shoes</a></li>
+                                <li><a href="#">Sách thiếu nhi</a></li>
+                                <li><a href="#">Sách nuôi dạy con</a></li>
+                                <li><a href="#">Sách tiếng anh</a></li>
+                                <li><a href="#">Sách kĩ năng sống</a></li>
+                                <li><a href="#">Truyện thiếu nhi</a></li>
                             </ul>
                         </div>
                     </div>
                     <div class="col-sm-2">
                         <div class="single-widget">
-                            <h2>Policies</h2>
+                            <h2 class="hover-effect" style="font-size: 20px;font-weight: bold">Các Chính Sách</h2>
                             <ul class="nav nav-pills nav-stacked">
-                                <li><a href="#">Terms of Use</a></li>
-                                <li><a href="#">Privecy Policy</a></li>
-                                <li><a href="#">Refund Policy</a></li>
-                                <li><a href="#">Billing System</a></li>
-                                <li><a href="#">Ticket System</a></li>
+                                <li><a href="#">Điều Khoản Sử Dụng</a></li>
+                                <li><a href="#">Chính Sách Bảo Mật</a></li>
+                                <li><a href="#">Chính Sách Hoàn Tiền</a></li>
+                                <li><a href="#">Hệ Thống Thanh Toán</a></li>
+                                <li><a href="#">Hệ Thống Vé</a></li>
                             </ul>
                         </div>
                     </div>
                     <div class="col-sm-2">
                         <div class="single-widget">
-                            <h2>About BOOK.VN</h2>
+                            <h2 class="hover-effect" style="font-size: 20px;font-weight: bold">Về BOOK.VN</h2>
                             <ul class="nav nav-pills nav-stacked">
-                                <li><a href="#">Company Information</a></li>
-                                <li><a href="#">Careers</a></li>
-                                <li><a href="#">Store Location</a></li>
-                                <li><a href="#">Affillate Program</a></li>
-                                <li><a href="#">Copyright</a></li>
+                                <li><a href="#">Thông Tin Công Ty</a></li>
+                                <li><a href="#">Cơ Hội Nghề Nghiệp</a></li>
+                                <li><a href="#">Địa Điểm Cửa Hàng</a></li>
+                                <li><a href="#">Chương Trình Liên Kết</a></li>
+                                <li><a href="#">Bản Quyền</a></li>
                             </ul>
                         </div>
                     </div>
                     <div class="col-sm-3 col-sm-offset-1">
                         <div class="single-widget">
-                            <h2>About BOOK.VN</h2>
+                            <h2 class="hover-effect" style="font-size: 20px;font-weight: bold">Giới thiệu về BOOK.VN</h2>
                             <form action="#" class="searchform">
-                                <input type="text" placeholder="Your email address" />
+                                <input type="text" placeholder="Địa chỉ email của bạn" />
                                 <button type="submit" class="btn btn-default"><i
                                         class="fa fa-arrow-circle-o-right"></i></button>
-                                <p>Get the most recent updates from <br />our site and be updated your self...</p>
+                                <p>Nhận những cập nhật mới nhất từ <br />trang web của chúng tôi và cập nhật cho chính
+                                    bạn...</p>
                             </form>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

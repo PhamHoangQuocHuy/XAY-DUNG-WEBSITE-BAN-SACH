@@ -2519,5 +2519,55 @@ h2.title {
 .contact-info .social-networks ul li a:hover{
   color: #FE980F;
 }
+.footer-top {
+  display: flex; /* Sử dụng flexbox để dễ dàng căn chỉnh */
+  justify-content: space-between; /* Đảm bảo các phần tử nằm cách nhau */
+  align-items: center; /* Căn giữa theo chiều dọc */
+}
 
+.companyinfo {
+  display: flex;
+  align-items: center; /* Căn giữa hình ảnh và văn bản theo chiều dọc */
+}
 
+img.payment_styling {  
+  width: 10cm; /* Đặt chiều rộng hình ảnh là 10cm */
+  height: auto; /* Giữ tỷ lệ hình ảnh */
+  display: inline-block; /* Đảm bảo hình ảnh nằm trên cùng dòng với văn bản */
+  transition: transform 0.3s, box-shadow 0.3s; /* Thêm hiệu ứng chuyển động cho nhô lên và đổ bóng */
+}
+
+.payment_styling:hover {
+  transform: translateY(-5px); /* Nhô lên 5px khi rê chuột vào hình ảnh */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Thêm bóng đổ để tạo chiều sâu khi nhô lên */
+}
+
+.address {
+  display: flex; 
+  align-items: center; /* Căn giữa iframe và địa chỉ theo chiều dọc */
+  margin-left: auto; /* Đẩy phần này sang bên phải */
+}
+.hover-effect {
+  position: relative;
+  display: inline-block;
+  color: black; /* Màu chữ */
+  text-decoration: none; /* Bỏ gạch chân */
+  font-size: 35px; /* Kích thước chữ */
+  overflow: hidden; /* Ẩn phần vượt quá của phần tử con */
+}
+
+.hover-effect::after {
+  content: '';
+  position: absolute;
+  margin-top: 5px;
+  left: -100%; /* Bắt đầu từ bên trái */
+  bottom: 0px; /* Đặt ở dưới chân chữ */
+  height: 2px; /* Độ cao của hiệu ứng */
+  width: 100%; /* Độ rộng 100% */
+  background-color: #FE980F; /* Màu nền */
+  transition: all 0.5s ease; /* Hiệu ứng chuyển động */
+}
+
+.hover-effect:hover::after {
+  left: 0; /* Chuyển đến bên trái 0 khi rê chuột */
+}

@@ -20,6 +20,10 @@ Route::get('/trang-chu', [HomeController::class, 'index']);
 Route::get('/danh-muc-sach/{category_id}', [CategoryProduct::class, 'show_category_home']);
 Route::get('/danh-muc-tac-gia/{author_id}', [AuthorController::class, 'show_author_home']);
 Route::get('/danh-muc-nxb/{book_id}', [ProductController::class, 'show_nxb_home']);
+Route::get('/chi-tiet-san-pham-theo-cate/{book_id}', [ProductController::class, 'details_product_cate']);
+Route::get('/chi-tiet-san-pham-theo-author/{book_id}', [ProductController::class, 'details_product_author']);
+Route::get('/chi-tiet-san-pham-theo-nxb/{book_id}', [ProductController::class, 'details_product_nxb']);
+Route::get('/chi-tiet-san-pham-theo-trang-chu/{book_id}', [ProductController::class, 'details_product_home']);
 
 //Admin
 Route::get('/admin', [AdminController::class, 'index']);

@@ -133,17 +133,32 @@ class CategoryProduct extends Controller
     }
 
     //End Function Admin Page
-    public function show_category_home($category_id){
+    public function show_category_home($category_id)
+    {
         $category_book = DB::table('category')
-        ->where('status', 'active')
-        ->orderBy('category_id', 'asc')
-        ->get();
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
 
-        $tacgia_book = DB::table('author')->orderBy('author_id', 'asc')->get(); // thêm biến tacgia_book
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get(); // thêm biến tacgia_book
+
+        // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        // Loại bỏ nhà xuất bản trùng lặp
+        $publisher_list = $all_publishers->unique('publisher')->values();
+
+
         $all_book = DB::table('book')
-        ->where('status', 'active')
-        ->orderBy('book_id', 'asc')
-        ->get();
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
 
         $limitWordsFunc = function ($string, $word_limit) {
             $words = explode(' ', $string);
@@ -154,22 +169,23 @@ class CategoryProduct extends Controller
         };
 
         $cate_name = DB::table('category')
-        ->where('category.category_id',$category_id)
-        ->limit(1)
-        ->get();
+            ->where('category.category_id', $category_id)
+            ->limit(1)
+            ->get();
 
         $category_by_id = DB::table('book')
-        ->join('category','book.category_id','=','category.category_id')
-        ->where('book.category_id',$category_id)
-        ->get();
+            ->join('category', 'book.category_id', '=', 'category.category_id')
+            ->where('book.category_id', $category_id)
+            ->where('book.status', 'active')
+            ->get();
 
         return view('pages.category.show_category')
-        ->with('category', $category_book)
-        ->with('category_by_id', $category_by_id)
-        ->with('cate_name', $cate_name)
-        ->with('tacgia_book', $tacgia_book) // truyền thêm biến tacgia_book
-        ->with('all_book', $all_book) // truyền thêm biến tacgia_book
-        ->with('limitWordsFunc', $limitWordsFunc);
+            ->with('category', $category_book)
+            ->with('category_by_id', $category_by_id)
+            ->with('cate_name', $cate_name)
+            ->with('publisher_list', $publisher_list) // nxb
+            ->with('tacgia_book', $tacgia_book) // tác giả
+            ->with('all_book', $all_book) // sách
+            ->with('limitWordsFunc', $limitWordsFunc);
     }
-
 }

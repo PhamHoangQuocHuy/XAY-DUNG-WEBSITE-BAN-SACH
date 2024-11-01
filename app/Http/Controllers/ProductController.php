@@ -64,8 +64,6 @@ class ProductController extends Controller
         // Truyền biến vào view
         $manager_book = view('admin.all_book')->with('all_book', $all_book)->with('limitWordsFunc', $limitWordsFunc);
         return view('admin_layout')->with('admin.all_book', $manager_book);
-        dd($all_book); // Kiểm tra dữ liệu
-
     }
 
     // THÊM SÁCH
@@ -286,18 +284,37 @@ class ProductController extends Controller
     //END FUNCTION ADMIN PAGE HERE
     public function show_nxb_home($book_id)
     {
+        // NXB
         $nxb_book = DB::table('book')
             ->where('status', 'active')
             ->orderBy('book_id', 'asc')
             ->get();
 
-        $tacgia_book = DB::table('author')->orderBy('author_id', 'asc')->get(); // thêm biến tacgia_book
-        $category_book = DB::table('category')->where('status', 'active')->orderBy('category_id', 'asc')->get();
+        // Author
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get(); // thêm biến tacgia_book
+
+        //Category
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        // Loại bỏ nhà xuất bản trùng lặp
+        $publisher_list = $all_publishers->unique('publisher')->values();
+
+
         $all_book = DB::table('book')
-        ->where('status', 'active')
-        ->orderBy('book_id', 'asc')
-        ->take(3) // chỉ lấy 3 nxb
-        ->get();
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
 
         // Lấy tên nhà xuất bản từ book_id đã chọn
         $nxb_name = DB::table('book')
@@ -316,8 +333,368 @@ class ProductController extends Controller
             ->with('nxb_book', $nxb_book)
             ->with('nxb_by_id', $nxb_by_id)
             ->with('nxb_name', $nxb_name)
-            ->with('all_book', $all_book) // truyền thêm biến tacgia_book
-            ->with('tacgia_book', $tacgia_book) // truyền thêm biến tacgia_book
-            ->with('category', $category_book);
+            ->with('publisher_list', $publisher_list) // nxb
+            ->with('all_book', $all_book) // sách
+            ->with('tacgia_book', $tacgia_book) // tác giả
+            ->with('category', $category_book); // thể loại
     }
+
+    // DETAILS PRODUCT
+    public function details_product_cate($book_id)
+    {
+        // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get(); // thêm biến tacgia_book
+
+        // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        // Loại bỏ nhà xuất bản trùng lặp
+        $publisher_list = $all_publishers->unique('publisher')->values();
+        $all_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+
+        // CHI TIẾT SẢN PHẨM
+        $details_product_category = DB::table('book')
+            ->join('category', 'category.category_id', '=', 'book.category_id')
+            ->join('author', 'author.author_id', '=', 'book.author_id')
+            ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
+            ->where('book.book_id', $book_id)
+            ->select(
+                'book.*', // Chọn tất cả các trường từ bảng book
+                'category.category_name',
+                'author.author_name',
+                'supplier.supplier_name',
+                'supplier.supplier_phone',
+                'supplier.supplier_email',
+                'supplier.supplier_address'
+            )
+            ->get()
+            ->map(function ($book) {
+                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
+                return $book;
+            });
+        // SẢN PHẨM LIÊN QUAN   
+        foreach ($details_product_category as $key => $value) {
+            $category_id = $value->category_id;
+        }
+        $ralated_product = DB::table('book')
+            ->join('category', 'category.category_id', '=', 'book.category_id')
+            ->join('author', 'author.author_id', '=', 'book.author_id')
+            ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
+            ->where('category.category_id', $category_id)
+            ->whereNotIn('book.book_id', [$book_id])
+            ->orderby('book.book_id', 'asc')
+            ->select(
+                'book.*', // Chọn tất cả các trường từ bảng book
+                'category.category_name',
+                'author.author_name',
+                'supplier.supplier_name',
+                'supplier.supplier_phone',
+                'supplier.supplier_email',
+                'supplier.supplier_address'
+            )
+            ->get()
+            ->map(function ($book) {
+                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
+                return $book;
+            });
+
+
+        return view('pages.sanpham.show_details_cate')
+            ->with('category', $category_book) // thể loại
+            ->with('publisher_list', $publisher_list) // nxb
+            ->with('tacgia_book', $tacgia_book) // tác giả
+            ->with('all_book', $all_book) // sách
+            ->with('product_details', $details_product_category) // chi tiết sản phẩm
+            ->with('relate', $ralated_product) // sản phẩm liên quan
+            ->with('limitWordsFunc', $limitWordsFunc);
+    }
+    public function details_product_author($book_id)
+    {
+        // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get(); // thêm biến tacgia_book
+
+        // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        // Loại bỏ nhà xuất bản trùng lặp
+        $publisher_list = $all_publishers->unique('publisher')->values();
+        $all_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+
+        // CHI TIẾT SẢN PHẨM
+        $details_product_author = DB::table('book')
+            ->join('category', 'category.category_id', '=', 'book.category_id')
+            ->join('author', 'author.author_id', '=', 'book.author_id')
+            ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
+            ->where('book.book_id', $book_id)
+            ->select(
+                'book.*', // Chọn tất cả các trường từ bảng book
+                'category.category_name',
+                'author.author_name',
+                'supplier.supplier_name',
+                'supplier.supplier_phone',
+                'supplier.supplier_email',
+                'supplier.supplier_address'
+            )
+            ->get()
+            ->map(function ($book) {
+                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
+                return $book;
+            });
+        // SẢN PHẨM LIÊN QUAN ĐẾN AUTHOR
+        foreach ($details_product_author as $key => $value) {
+            $author_id = $value->author_id;
+        }
+        $ralated_product_author = DB::table('book')
+            ->join('category', 'category.category_id', '=', 'book.category_id')
+            ->join('author', 'author.author_id', '=', 'book.author_id')
+            ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
+            ->where('author.author_id', $author_id)
+            ->whereNotIn('book.book_id', [$book_id])
+            ->orderby('book.book_id', 'asc')
+            ->select(
+                'book.*', // Chọn tất cả các trường từ bảng book
+                'category.category_name',
+                'author.author_name',
+                'supplier.supplier_name',
+                'supplier.supplier_phone',
+                'supplier.supplier_email',
+                'supplier.supplier_address'
+            )
+            ->get()
+            ->map(function ($book) {
+                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
+                return $book;
+            });
+
+
+        return view('pages.sanpham.show_details_author')
+            ->with('category', $category_book) // thể loại
+            ->with('publisher_list', $publisher_list) // nxb
+            ->with('tacgia_book', $tacgia_book) // tác giả
+            ->with('all_book', $all_book) // sách
+            ->with('product_details_author', $details_product_author) // chi tiết sản phẩm
+            ->with('relate_to_author', $ralated_product_author) // sản phẩm liên quan
+            ->with('limitWordsFunc', $limitWordsFunc);
+    }
+
+    public function details_product_nxb($book_id)
+    {
+        // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get(); // thêm biến tacgia_book
+
+        // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        // Loại bỏ nhà xuất bản trùng lặp
+        $publisher_list = $all_publishers->unique('publisher')->values();
+        $all_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+
+        // CHI TIẾT SẢN PHẨM
+        $details_product_nxb = DB::table('book')
+            ->join('category', 'category.category_id', '=', 'book.category_id')
+            ->join('author', 'author.author_id', '=', 'book.author_id')
+            ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
+            ->where('book.book_id', $book_id)
+            ->select(
+                'book.*', // Chọn tất cả các trường từ bảng book
+                'category.category_name',
+                'author.author_name',
+                'book.publisher'
+            )
+            ->get()
+            ->map(function ($book) {
+                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
+                return $book;
+            });
+        // SẢN PHẨM LIÊN QUAN ĐẾN NXB
+        //$publisher = null;
+        foreach ($details_product_nxb as $key => $value) {
+            $publisher = $value->publisher;
+        }
+        $ralated_product_nxb = DB::table('book')
+            ->join('category', 'category.category_id', '=', 'book.category_id')
+            ->join('author', 'author.author_id', '=', 'book.author_id')
+            ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
+            ->where('book.publisher', $publisher)
+            ->where('book_id', '!=', $book_id)
+            ->orderby('book.book_id', 'asc')
+            ->select(
+                'book.*', // Chọn tất cả các trường từ bảng book
+                'category.category_name',
+                'author.author_name',
+                'book.publisher'
+            )
+            ->get()
+            ->map(function ($book) {
+                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
+                return $book;
+            });
+
+
+        return view('pages.sanpham.show_details_nxb')
+            ->with('category', $category_book) // thể loại
+            ->with('publisher_list', $publisher_list) // nxb
+            ->with('tacgia_book', $tacgia_book) // tác giả
+            ->with('all_book', $all_book) // sách
+            ->with('product_details_nxb', $details_product_nxb) // chi tiết sản phẩm
+            ->with('relate_to_nxb', $ralated_product_nxb) // sản phẩm liên quan
+            ->with('limitWordsFunc', $limitWordsFunc);
+    }
+    public function details_product_home($book_id)
+    {
+        // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get(); // thêm biến tacgia_book
+
+        // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        // Loại bỏ nhà xuất bản trùng lặp
+        $publisher_list = $all_publishers->unique('publisher')->values();
+        $all_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+
+        // CHI TIẾT SẢN PHẨM
+        $details_product_home = DB::table('book')
+            ->join('category', 'category.category_id', '=', 'book.category_id')
+            ->join('author', 'author.author_id', '=', 'book.author_id')
+            ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
+            ->where('book.book_id', $book_id)
+            ->select(
+                'book.*', // Chọn tất cả các trường từ bảng book
+                'category.category_name',
+                'author.author_name',
+                'supplier.supplier_name',
+                'supplier.supplier_phone',
+                'supplier.supplier_email',
+                'supplier.supplier_address'
+            )
+            ->get()
+            ->map(function ($book) {
+                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
+                return $book;
+            });
+        // SẢN PHẨM LIÊN QUAN   
+        foreach ($details_product_home as $key => $value) {
+            $category_id = $value->category_id;
+        }
+        $ralated_product_home = DB::table('book')
+            ->join('category', 'category.category_id', '=', 'book.category_id')
+            ->join('author', 'author.author_id', '=', 'book.author_id')
+            ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
+            ->where('category.category_id', $category_id)
+            ->whereNotIn('book.book_id', [$book_id])
+            ->orderby('book.book_id', 'asc')
+            ->select(
+                'book.*', // Chọn tất cả các trường từ bảng book
+                'category.category_name',
+                'author.author_name',
+                'supplier.supplier_name',
+                'supplier.supplier_phone',
+                'supplier.supplier_email',
+                'supplier.supplier_address'
+            )
+            ->get()
+            ->map(function ($book) {
+                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
+                return $book;
+            });
+
+
+        return view('pages.sanpham.show_details_home')
+            ->with('category', $category_book) // thể loại
+            ->with('publisher_list', $publisher_list) // nxb
+            ->with('tacgia_book', $tacgia_book) // tác giả
+            ->with('all_book', $all_book) // sách
+            ->with('product_details_home', $details_product_home) // chi tiết sản phẩm
+            ->with('relate_home', $ralated_product_home) // sản phẩm liên quan
+            ->with('limitWordsFunc', $limitWordsFunc);
+    }
+
 }

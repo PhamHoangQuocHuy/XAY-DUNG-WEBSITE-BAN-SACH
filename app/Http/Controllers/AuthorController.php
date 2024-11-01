@@ -111,32 +111,52 @@ class AuthorController extends Controller
     }
 
     //END FUNCTION ADMIN PAGE
-    public function show_author_home($author_id){
+    public function show_author_home($author_id)
+    {
         $tacgia_book = DB::table('author')
-        ->orderBy('author_id', 'asc')
-        ->get();
-        $category_book = DB::table('category')->where('status', 'active')->orderBy('category_id', 'asc')->get();
+            ->orderBy('author_id', 'asc')
+            ->get();
+
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(5) // lấy 4 nxb
+            ->get();
+        // Loại bỏ nhà xuất bản trùng lặp
+        $publisher_list = $all_publishers->unique('publisher')->values();
+
+
         $all_book = DB::table('book')
-        ->where('status', 'active')
-        ->orderBy('book_id', 'asc')
-        ->get();
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
 
         $tacgia_name = DB::table('author')
-        ->where('author.author_id',$author_id)
-        ->limit(1)
-        ->get();
+            ->where('author.author_id', $author_id)
+            ->limit(1)
+            ->get();
 
         $author_by_id = DB::table('book')
-        ->join('author','book.author_id','=','author.author_id')
-        ->where('book.author_id',$author_id)
-        ->get();
+            ->join('author', 'book.author_id', '=', 'author.author_id')
+            ->where('book.author_id', $author_id)
+            ->where('book.status', 'active')
+            ->get();
+
+        
 
         return view('pages.author.show_author')
-        ->with('tacgia_book', $tacgia_book)
-        ->with('author_by_id', $author_by_id)
-        ->with('tacgia_name', $tacgia_name)
-        ->with('all_book', $all_book)
-        ->with('category', $category_book);
+            ->with('tacgia_book', $tacgia_book)
+            ->with('author_by_id', $author_by_id)
+            ->with('tacgia_name', $tacgia_name) // tác giả
+            ->with('all_book', $all_book) // sách
+            ->with('publisher_list', $publisher_list) //nxb
+            ->with('category', $category_book); // thể loại
     }
-
 }
