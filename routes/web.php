@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\AdminController; // gọi controller của admin
 use App\Http\Controllers\AuthorController; // gọi controller của author
+use App\Http\Controllers\CartController; // gọi controller của cart
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;    //gọi controller của home
 use App\Http\Controllers\CategoryProduct;   //gọi controller của cate
 use App\Http\Controllers\ProductController; // gọi controller của product
 use App\Http\Controllers\SupplierController; // gọi controller của supplier
+use App\Http\Controllers\CheckoutController; // gọi controller của checkout
+
 
 // Route::get('/', 'HomeController@index');
 // Route::get('/trang-chu','HomeController@index' ); 
@@ -15,6 +18,7 @@ use App\Http\Controllers\SupplierController; // gọi controller của supplier
 //User
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/trang-chu', [HomeController::class, 'index']);
+Route::post('/tim-kiem', [HomeController::class, 'search']);
 
 // Danh mục sách trang chủ
 Route::get('/danh-muc-sach/{category_id}', [CategoryProduct::class, 'show_category_home']);
@@ -76,6 +80,25 @@ Route::get('/inactive-book/{book_id}', [ProductController::class, 'inactive_book
 
 Route::post('/save-book', [ProductController::class, 'save_book']);
 Route::post('/update-book/{book_id}', [ProductController::class, 'update_book']);
+
+// Cart
+Route::post('/save-cart', [CartController::class, 'save_cart']);
+Route::get('/show-cart', [CartController::class, 'show_cart']);
+Route::get('/delete-to-cart/{rowId}', [CartController::class, 'delete_to_cart']);
+Route::post('/update-cart-quantity', [CartController::class, 'update_cart_quantity']);
+
+//Checkout
+Route::get('/login-checkout', [CheckoutController::class, 'login_checkout']);
+Route::get('/checkout', [CheckoutController::class, 'checkout']);
+
+Route::post('/add-customer', [CheckoutController::class, 'add_customer']);
+Route::post('/save-checkout-customer', [CheckoutController::class, 'save_checkout_customer']);
+Route::post('/user-login', [CheckoutController::class, 'user_login']);
+Route::post('/order-place', [CheckoutController::class, 'order_place']);
+
+
+Route::get('/payment', [CheckoutController::class, 'payment']);
+Route::get('/logout-checkout', [CheckoutController::class, 'logout_checkout']);
 
 // laravel 8 trở lên phải sử dụng [Controller::class, 'method'] theo cú pháp array-based
 // Gọi tên controller rồi đến hàm của controller đó

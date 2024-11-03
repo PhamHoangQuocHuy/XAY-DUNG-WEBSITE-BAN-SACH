@@ -12,13 +12,13 @@
     <link href="{{ asset('public/frontend/css/prettyPhoto.css') }}" rel="stylesheet">
     <link href="{{ asset('public/frontend/css/price-range.css') }}" rel="stylesheet">
     <link href="{{ asset('public/frontend/css/animate.css') }}" rel="stylesheet">
-    <link href="{{ asset('public/frontend/css/main.cs') }}s" rel="stylesheet">
+    <link href="{{ asset('public/frontend/css/main.css') }}" rel="stylesheet">
     <link href="{{ asset('public/frontend/css/responsive.css') }}" rel="stylesheet">
     <!--[if lt IE 9]>
     <script src="js/html5shiv.js"></script>
     <script src="js/respond.min.js"></script>
     <![endif]-->
-    <link rel="shortcut icon" href="{{ 'public/frontend/images/ico/favicon.ico' }}">
+    <link rel="shortcut icon" href="{{ asset('public/frontend/images/ico/favicon.ico') }}">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="images/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72-precomposed.png">
@@ -36,8 +36,10 @@
                     <div class="col-sm-6">
                         <div class="contactinfo">
                             <ul class="nav nav-pills">
-                                <li><a href="#" class="hover-effect" style="font-size: 15px;font-weight: bold"><i class="fa fa-phone"></i> +0764 514 276</a></li>
-                                <li><a href="#" class="hover-effect" style="font-size: 15px;font-weight: bold"><i class="fa fa-envelope"></i> quochuy6422@gmail.con</a></li>
+                                <li><a href="#" class="hover-effect" style="font-size: 15px;font-weight: bold"><i
+                                            class="fa fa-phone"></i> +0764 514 276</a></li>
+                                <li><a href="#" class="hover-effect" style="font-size: 15px;font-weight: bold"><i
+                                            class="fa fa-envelope"></i> quochuy6422@gmail.com</a></li>
                             </ul>
                         </div>
                     </div>
@@ -62,43 +64,86 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-4">
-                        <div class="logo pull-left">
+                        <div class="logo-edit pull-left">
                             <a href="{{ URL::to('/trang-chu') }}"><img
                                     src="{{ asset('public/frontend/images/logo.png') }}" alt="" /></a>
                         </div>
-                        {{-- <div class="btn-group pull-right">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle usa"
-                                    data-toggle="dropdown">
-                                    Tiền tệ
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">VNĐ</a></li>
-                                </ul>
-                            </div>
-
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle usa"
-                                    data-toggle="dropdown">
-                                    DOLLAR
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Canadian Dollar</a></li>
-                                    <li><a href="#">Pound</a></li>
-                                </ul>
-                            </div>
-                        </div> --}}
                     </div>
                     <div class="col-sm-8">
+                        <?php
+                        // Kiểm tra thông báo thành công
+                        $message = Session::get('success');
+                        if ($message) {
+                            echo '<span style="color: green;">' . $message . '</span>';
+                            Session::put('success', null); // Đặt lại thông báo sau khi hiển thị
+                        }
+                        
+                        // Kiểm tra thông báo lỗi từ phương thức validate hoặc lỗi khác
+                        $errors = Session::get('errors');
+                        if ($errors) {
+                            foreach ($errors->all() as $error) {
+                                echo '<span style="color: red;">' . $error . '</span>';
+                            }
+                            Session::forget('errors'); // Đặt lại lỗi sau khi hiển thị
+                        }
+                        ?>
                         <div class="shop-menu pull-right">
                             <ul class="nav navbar-nav">
-                                <li><a href="#"><i class="fa fa-user"></i> TÀI KHOẢN</a></li>
-                                <li><a href="#"><i class="fa fa-star"></i> Wishlist</a></li>
-                                <li><a href="checkout.html"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-                                <li><a href="cart.html"><i class="fa fa-shopping-cart"></i> GIỎ HÀNG</a></li>
-                                <li><a href="login.html"><i class="fa fa-lock"></i> ĐĂNG NHẬP</a></li>
+
+
+                                {{-- HIỆN TÊN USERNAME --}}
+                                <?php
+                                $user_id = Session::get('user_id');
+                                if($user_id!=NULL){
+                                ?>
+                                <li><a href="#"><i class="fa fa-user"></i>
+                                        {{ Session::get('username') }}
+                                    </a></li>
+                                <?php
+                                }else {
+                                ?>
+                                {{-- KHÔNG HIỆN GÌ NẾU NGƯỜI DÙNG CHƯA ĐĂNG NHẬP --}}
+                                <?php
+                                    }
+                                ?>
+
+
+                                <li><a href="#"><i class="fa fa-star"></i> DANH SÁCH YÊU THÍCH</a></li>
+
+                                {{-- THANH TOÁN --}}
+                                <?php
+                                $user_id = Session::get('user_id');
+                                if($user_id!=NULL && Cart::count()>0){
+                                ?>
+                                <li><a href="{{ URL::to('/checkout') }}"><i class="fa fa-crosshairs"></i> THANH
+                                        TOÁN</a></li>
+                                <?php
+                                }else {
+                                ?>
+                                {{-- KHÔNG HIỆN GÌ NẾU CHƯA ĐĂNG NHẬP HOẶC CHƯA CÓ SẢN PHẨM TRONG GIỎ HÀNG --}}
+                                <?php
+                                    }
+                                ?>
+
+
+                                <li><a href="{{ URL::to('/show-cart') }}"><i class="fa fa-shopping-cart"></i> GIỎ
+                                        HÀNG</a></li>
+
+                                {{-- HIỆN ĐĂNG NHẬP/ ĐĂNG XUẤT --}}
+                                <?php
+                                $user_id = Session::get('user_id');
+                                if($user_id!=NULL){
+                                ?>
+                                <li><a href="{{ URL::to('/logout-checkout') }}"><i class="fa fa-lock"></i> ĐĂNG
+                                        XUẤT</a>
+                                    <?php
+                                }else {
+                                ?>
+                                <li><a href="{{ URL::to('/login-checkout') }}"><i class="fa fa-lock"></i> ĐĂNG NHẬP</a>
+                                    <?php
+                                    }
+                                ?>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -122,22 +167,46 @@
                             </button>
                         </div>
                         <div class="mainmenu pull-left">
-                            <ul class="nav navbar-nav collapse navbar-collapse">
-                                <li><a href="{{ URL::to('/trang-chu') }}" class="active">TRANG CHỦ</a></li>
-                                <li class="dropdown"><a href="#">DANH MỤC SÁCH<i class="fa fa-angle-down"></i></a>
+                            <ul class="nav navbar-nav collapse navbar-collapse" >
+                                <li><a href="{{ URL::to('/trang-chu') }}" class="active" style="padding-left: 50px;">TRANG CHỦ</a></li>
+                                <li class="dropdown"><a href="#">DANH MỤC SÁCH<i
+                                            class="fa fa-angle-down"></i></a>
                                     <ul role="menu" class="sub-menu">
-                                        <li><a href="shop.html">Products</a></li>
+                                        <li>
+                                            @foreach ($category as $key => $cate)
+                                                <!--category-productsr-->
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading"
+                                                        style="background-color: rgba(0, 0, 0, 0.6);">
+                                                        <h4 class="panel-title">
+                                                            <a class="hover-effect"
+                                                                style="font-size: 15px;font-weight: bold"
+                                                                href="{{ URL::to('/danh-muc-sach/' . $cate->category_id) }}"><i
+                                                                    class="fa-brands fa-web-awesome"
+                                                                    style="color: #FFD43B;"></i>{{ $cate->category_name }}</a>
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </li>
                                     </ul>
                                 </li>
-                                <li><a href="404.html">GIỎ HÀNG</a></li>
+                                <li><a href="{{ URL::to('/show-cart') }}">GIỎ HÀNG</a></li>
                                 <li><a href="contact-us.html">LIÊN HỆ</a></li>
                             </ul>
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="search_box pull-right">
-                            <input type="text" placeholder="Search" />
-                        </div>
+                        <form action="{{ URL::to('/tim-kiem') }}" method="POST">
+                            {{ csrf_field() }}
+                            <div class="search_box pull-right">
+                                <input type="text" name="keywords_submit" style="border: solid"
+                                    placeholder="Tìm kiếm sản phẩm" autocomplete="off"/>
+                                <input type="submit" class="btn btn-primary btn-sm"
+                                    style="margin-top: 0px;color: black;margin-left: -4px;padding-right: 15px;margin-right: 30px;"
+                                    value="Tìm kiếm" name="search_items">
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -162,7 +231,7 @@
                             <div class="item active">
                                 <div class="col-sm-6">
                                     <h1><span>BOOK.VN</span></h1>
-                                    <h2>Free E-Commerce Template</h2>
+                                    <h2>SALE ALL KIND OF BOOK ON THE WORLD</h2>
                                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
                                         incididunt ut labore et dolore magna aliqua. </p>
                                     <button type="button" class="btn btn-default get">MUA NGAY</button>
@@ -229,7 +298,9 @@
                                     <div class="panel-heading">
                                         <h4 class="panel-title">
                                             <a class="hover-effect" style="font-size: 15px;font-weight: bold"
-                                                href="{{ URL::to('/danh-muc-sach/' . $cate->category_id) }}">{{ $cate->category_name }}</a>
+                                                href="{{ URL::to('/danh-muc-sach/' . $cate->category_id) }}"><i
+                                                    class="fa-brands fa-web-awesome"
+                                                    style="color: #FFD43B;"></i>{{ $cate->category_name }}</a>
                                         </h4>
                                     </div>
                                 </div>
@@ -244,7 +315,7 @@
                                     <li>
                                         @foreach ($tacgia_book as $key => $tacgia)
                                             <a class="hover-effect" style="font-size: 15px;font-weight: bold"
-                                                href="{{ URL::to('/danh-muc-tac-gia/' . $tacgia->author_id) }}">{{ $tacgia->author_name }}</a>
+                                                href="{{ URL::to('/danh-muc-tac-gia/' . $tacgia->author_id) }}">{{ $tacgia->author_name }}</i></a>
                                         @endforeach
                                     </li>
                                 </ul>
@@ -282,14 +353,15 @@
                     <div class="col-sm-2">
                         <div class="companyinfo">
                             <h2><span style="font-weight: bold">Payment Methods</span></h2>
-                            <img class="payment_styling" src="{{ asset('public/frontend/images/payment_methods.jpg') }}" alt="">
+                            <img class="payment_styling"
+                                src="{{ asset('public/frontend/images/payment_methods.jpg') }}" alt="">
                         </div>
                     </div>
                     <div class="col-sm-3" style="float: right">
                         <div class="address">
-                            <iframe 
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.954410425893!2d106.67525717480439!3d10.73799718940847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f62a90e5dbd%3A0x674d5126513db295!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBDw7RuZyBuZ2jhu4cgU8OgaSBHw7Ju!5e0!3m2!1svi!2s!4v1730443425775!5m2!1svi!2s" 
-                                width="600" height="150" style="border:0;" allowfullscreen="" loading="lazy" 
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.954410425893!2d106.67525717480439!3d10.73799718940847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f62a90e5dbd%3A0x674d5126513db295!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBDw7RuZyBuZ2jhu4cgU8OgaSBHw7Ju!5e0!3m2!1svi!2s!4v1730443425775!5m2!1svi!2s"
+                                width="600" height="150" style="border:0;" allowfullscreen="" loading="lazy"
                                 referrerpolicy="no-referrer-when-downgrade">
                             </iframe>
                         </div>
@@ -297,7 +369,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="footer-widget">
             <div class="container">
                 <div class="row">
@@ -351,7 +423,8 @@
                     </div>
                     <div class="col-sm-3 col-sm-offset-1">
                         <div class="single-widget">
-                            <h2 class="hover-effect" style="font-size: 20px;font-weight: bold">Giới thiệu về BOOK.VN</h2>
+                            <h2 class="hover-effect" style="font-size: 20px;font-weight: bold">Giới thiệu về BOOK.VN
+                            </h2>
                             <form action="#" class="searchform">
                                 <input type="text" placeholder="Địa chỉ email của bạn" />
                                 <button type="submit" class="btn btn-default"><i

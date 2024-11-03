@@ -1,6 +1,6 @@
 @extends('layout')
 @section('content')
-    <div class="features_items">
+    <div class="features_items" id="login-section">
         <!--features_items-->
         <h2 class="title text-center" style="padding-top: 5px">{{ $nxb_name }}</h2>
 
@@ -31,3 +31,14 @@
     </div>
     <!--features_items-->
 @endsection
+<script>
+    // Tự động cuộn xuống phần form đăng nhập khi trang được tải
+    document.addEventListener("DOMContentLoaded", function() {
+        var loginSection = document.getElementById("login-section");
+        if (loginSection) {
+            loginSection.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
+    });
+</script>

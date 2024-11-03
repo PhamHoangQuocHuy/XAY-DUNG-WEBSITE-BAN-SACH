@@ -1,3 +1,4 @@
+{{-- HIỂN THỊ CÁC SẢN PHẨM Ở TRANG CHỦ --}}
 @extends('layout')
 @section('content')
     {{-- đặt tên section và gọi bên layout bằng hàm @yield('cùng tên với section') và phải @endsection ở cuối --}}

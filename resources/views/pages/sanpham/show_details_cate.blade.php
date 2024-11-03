@@ -1,6 +1,6 @@
 @extends('layout')
 @section('content')
-    @foreach ($product_details_home as $key => $value)
+    @foreach ($product_details as $key => $value)
         <div class="product-details"><!--product-details-->
             <div class="col-sm-5">
                 <div class="view-product">
@@ -44,8 +44,8 @@
                 <div class="product-information"><!--/product-information-->
                     <img src="images/product-details/new.jpg" class="newarrival" alt="" />
                     <h2 style="font-size:25px "><strong>{{ $value->book_name }}</strong></h2>
-                    <p>Mã ID: {{ $value->isbn }}</p>
-                    <form action="" method="POST">
+                    <p>Mã ISBN: {{ $value->isbn }}</p>
+                    <form action="{{ URL::to('/save-cart') }}" method="POST">
                         {{ csrf_field() }}
                         <img src="images/product-details/rating.png" alt="" />
                         <span>
@@ -128,9 +128,11 @@
     @endforeach
 
     <div class="recommended_items"><!--recommended_items-->
-        <h2 class="title text-center" style="padding-top: 10px">SẢN PHẨM LIÊN QUAN {{$lienquan->category_name}}</h2>
+        <h2 class="title text-center" style="padding-top: 10px">
+            SẢN PHẨM LIÊN QUAN {{ $value->category_name }}
+        </h2>
         @if ($relate->isNotEmpty())
-            <!-- Kiểm tra nếu có sản phẩm liên quan -->
+            <!-- Hiển thị sản phẩm liên quan nếu có -->
             <div id="recommended-item-carousel" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
                     <div class="item active">
@@ -162,9 +164,9 @@
                 </a>
             </div>
         @else
+            <!-- Thông báo nếu không có sản phẩm liên quan -->
             <h3 style="text-align: center">Hiện tại không có sản phẩm liên quan nào.</h3>
             <p style="text-align: center">Hãy khám phá các danh mục khác để tìm kiếm sản phẩm phù hợp!</p>
-            <!-- Thông báo nếu không có sản phẩm liên quan -->
         @endif
     </div><!--/recommended_items-->
 @endsection

@@ -44,8 +44,8 @@
                 <div class="product-information"><!--/product-information-->
                     <img src="images/product-details/new.jpg" class="newarrival" alt="" />
                     <h2 style="font-size:25px "><strong>{{ $value_nxb->book_name }}</strong></h2>
-                    <p>Mã ID: {{ $value_nxb->isbn }}</p>
-                    <form action="" method="POST">
+                    <p>Mã ISBN: {{ $value_nxb->isbn }}</p>
+                    <form action="{{ URL::to('/save-cart') }}" method="POST">
                         {{ csrf_field() }}
                         <img src="images/product-details/rating.png" alt="" />
                         <span>
@@ -129,33 +129,28 @@
     @endforeach
 
     <div class="recommended_items"><!--recommended_items-->
-        <h2 class="title text-center" style="padding-top: 10px">SẢN PHẨM LIÊN QUAN {{$lienquan_nxb->publisher}}</h2>
+        <h2 class="title text-center" style="padding-top: 10px">SẢN PHẨM LIÊN QUAN {{$value_nxb->publisher}}</h2>
         @if ($relate_to_nxb->isNotEmpty())
             <div id="recommended-item-carousel" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
-                    <a href="{{ URL::to('/chi-tiet-san-pham-theo-nxb/' . $lienquan_nxb->book_id) }}">
-                        <div class="item active">
-                            @foreach ($relate_to_nxb as $key => $lienquan_nxb)
-                                <div class="col-sm-4">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{ URL::to('public/uploads/product/' . $lienquan_nxb->image) }}"
-                                                    alt="" />
-                                                <h2>{{ $lienquan_nxb->formatted_price = number_format($lienquan_nxb->price, 0, ',', '.') }}
-                                                    VNĐ
-                                                </h2>
-                                                <p>{{ $limitWordsFunc($lienquan_nxb->book_name, 8) }}</p>
-                                                <a href="#" class="btn btn-default add-to-cart"><i
-                                                        class="fa fa-shopping-cart"></i>Thêm vào
-                                                    giỏ hàng</a>
-                                            </div>
+                    <div class="item active">
+                        @foreach ($relate_to_nxb as $key => $lienquan_nxb)
+                            <div class="col-sm-4">
+                                <div class="product-image-wrapper">
+                                    <div class="single-products">
+                                        <div class="productinfo text-center">
+                                            <img src="{{ URL::to('public/uploads/product/' . $lienquan_nxb->image) }}"
+                                                alt="" />
+                                            <h2>{{ number_format($lienquan_nxb->price, 0, ',', '.') }} VNĐ</h2>
+                                            <p>{{ $lienquan_nxb->book_name }}</p>
+                                            <a href="#" class="btn btn-default add-to-cart"><i
+                                                    class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng</a>
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
-                        </div>
-                    </a>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
                 <a class="left recommended-item-control" href="#recommended-item-carousel" data-slide="prev">
                     <i class="fa fa-angle-left"></i>

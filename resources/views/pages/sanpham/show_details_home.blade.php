@@ -44,8 +44,8 @@
                 <div class="product-information"><!--/product-information-->
                     <img src="images/product-details/new.jpg" class="newarrival" alt="" />
                     <h2 style="font-size:25px "><strong>{{ $value_home->book_name }}</strong></h2>
-                    <p>Mã ID: {{ $value_home->isbn }}</p>
-                    <form action="" method="POST">
+                    <p>Mã ISBN: {{ $value_home->isbn }}</p>
+                    <form action="{{ URL::to('/save-cart') }}" method="POST">
                         {{ csrf_field() }}
                         <img src="images/product-details/rating.png" alt="" />
                         <span>

@@ -1388,8 +1388,19 @@ h2.title {
 
 .logo-404 {
   margin-top: 60px;
+  width: 50px; 
+  height: auto;
 }
-
+.logo-edit img {
+  width: 90px;
+  height: auto;
+  object-fit: cover;
+  margin-left: 15px;
+  transition: box-shadow 0.3s ease;
+}
+.logo-edit img:hover {
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
 .content-404 h1 {
   color: #363432;
   font-family: 'Roboto', sans-serif;
@@ -1550,8 +1561,8 @@ h2.title {
   border-style: solid;
   border-color:transparent transparent transparent #FE980F;
   position: absolute;
-  top: 11px;
-  left:48px;
+  top: 10px;
+  left:100px;
 
 }
 
@@ -1661,14 +1672,14 @@ h2.title {
 
 
 .cart_delete a {
-  background:#F0F0E9;
+  background:gray;
   color: #FFFFFF;
   padding: 5px 7px;
   font-size: 16px
 }
 
 .cart_delete a:hover {
-  background:#FE980F
+  background:red
 }
 
 
@@ -2570,4 +2581,58 @@ img.payment_styling {
 
 .hover-effect:hover::after {
   left: 0; /* Chuyển đến bên trái 0 khi rê chuột */
+}
+.table-condensed td {
+  text-align: center; /* Căn giữa theo chiều ngang */
+  vertical-align: middle; /* Căn giữa theo chiều dọc */
+}
+.cart_quantity {
+  display: flex;
+  align-items: center; /* Căn giữa theo chiều dọc */
+  justify-content: center; /* Căn giữa theo chiều ngang */
+}
+.cart_quantity_button {
+  display: flex;
+  align-items: center;
+}
+.table-responsive {
+  max-width: 100%; /* Điều chỉnh kích thước bảng để vừa với màn hình */
+  margin: auto; /* Căn giữa bảng */
+}
+
+.table-condensed td, 
+.table-condensed th {
+  padding: 8px; /* Giảm khoảng cách để bảng gọn hơn */
+}
+
+.cart_menu td, 
+.cart_menu th {
+  text-align: center; /* Căn giữa văn bản */
+}
+
+.cart_product img {
+  width: 80px; /* Điều chỉnh kích thước hình ảnh để phù hợp với kích thước bảng */
+}
+
+.cart_quantity_input {
+  width: 50px; /* Giới hạn chiều ngang ô nhập số lượng */
+  text-align: center;
+}
+
+.cart_total_price, 
+.cart_price p {
+  font-size: 16px; /* Điều chỉnh kích thước văn bản trong bảng */
+}
+#footer {
+  width: 100%;
+  box-sizing: border-box; /* Đảm bảo chiều rộng không bị ảnh hưởng bởi padding */
+}
+
+.footer-bottom, .footer-top, .footer-widget {
+  max-width: 100%; /* Đảm bảo các phần con chiếm toàn bộ chiều ngang */
+}
+
+.container {
+  width: 100%; /* Cho phép container trong footer giãn toàn bộ chiều rộng */
+  padding: 0 15px; /* Thêm padding cho phù hợp với trang */
 }

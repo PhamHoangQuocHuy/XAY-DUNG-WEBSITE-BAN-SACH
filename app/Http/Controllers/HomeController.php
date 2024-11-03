@@ -47,7 +47,7 @@ class HomeController extends Controller
             return $string;
         };
 
-        
+
 
         return view('pages.home')
             ->with('category', $category_book)
@@ -59,7 +59,7 @@ class HomeController extends Controller
         //đường dẫn laravel sử dụng dấu . thay vì dùng dấu /
     }
 
-        public function details_product($book_id)
+    public function details_product($book_id)
     {
         // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
         $category_book = DB::table('category')
@@ -123,7 +123,7 @@ class HomeController extends Controller
             ->join('author', 'author.author_id', '=', 'book.author_id')
             ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
             ->where('category.category_id', $category_id)
-            ->whereNotIn('book.book_id',[$book_id])
+            ->whereNotIn('book.book_id', [$book_id])
             ->orderby('book.book_id', 'asc')
             ->select(
                 'book.*', // Chọn tất cả các trường từ bảng book
@@ -160,5 +160,89 @@ class HomeController extends Controller
             return implode(' ', array_splice($words, 0, $word_limit)) . '...';
         }
         return $string;
+    }
+
+    // HÀM TÌM KIẾM SẢN PHẨM
+    public function search(Request $request)
+    {
+        $keywords = $request->keywords_submit;
+
+        // Nếu không có từ khóa, trả về thông báo không tìm thấy
+        if (empty($keywords)) {
+            return redirect()->back()->withErrors(['Không tìm thấy sản phẩm nào cho từ khóa: "' . $keywords . '"']);
+        }
+
+        // Code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get(); // thêm biến tacgia_book
+
+        // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        // Loại bỏ nhà xuất bản trùng lặp
+        $publisher_list = $all_publishers->unique('publisher')->values();
+
+        $all_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+
+        // Tìm kiếm theo các tiêu chí
+        $search_product = DB::table('book')
+            ->where('book_name', 'like', '%' . $keywords . '%')
+            ->orWhere('isbn', 'like', '%' . $keywords . '%') // Tìm theo số ISBN
+            ->orWhere('publisher', 'like', '%' . $keywords . '%') // Tìm theo nhà xuất bản
+            ->orWhere('tags', 'like', '%' . $keywords . '%') // Tìm theo từ khóa
+            ->orWhereExists(function ($query) use ($keywords) {
+                $query->select(DB::raw(1))
+                    ->from('author')
+                    ->whereRaw('author.author_id = book.author_id')
+                    ->where('author.author_name', 'like', '%' . $keywords . '%'); // Tìm theo tên tác giả
+            })
+            ->orWhereExists(function ($query) use ($keywords) {
+                $query->select(DB::raw(1))
+                    ->from('category')
+                    ->whereRaw('category.category_id = book.category_id')
+                    ->where('category.category_name', 'like', '%' . $keywords . '%'); // Tìm theo thể loại
+            })
+            ->get();
+
+        // Kiểm tra nếu không có sản phẩm nào tìm thấy
+        if ($search_product->isEmpty()) {
+            return view('pages.sanpham.search')
+                ->with('category', $category_book) // thể loại
+                ->with('publisher_list', $publisher_list) // nxb
+                ->with('tacgia_book', $tacgia_book) // tác giả
+                ->with('all_book', $all_book) // sách
+                ->with('search_product', collect()) // gửi danh sách rỗng nếu không tìm thấy sản phẩm nào
+                ->with('limitWordsFunc', $limitWordsFunc)
+                ->withErrors(['Không tìm thấy sản phẩm nào cho từ khóa: "' . $keywords . '"']);
+        }
+
+        return view('pages.sanpham.search')
+            ->with('category', $category_book) // thể loại
+            ->with('publisher_list', $publisher_list) // nxb
+            ->with('tacgia_book', $tacgia_book) // tác giả
+            ->with('all_book', $all_book) // sách
+            ->with('search_product', $search_product)
+            ->with('limitWordsFunc', $limitWordsFunc);
     }
 }

@@ -44,8 +44,8 @@
                 <div class="product-information"><!--/product-information-->
                     <img src="images/product-details/new.jpg" class="newarrival" alt="" />
                     <h2 style="font-size:25px "><strong>{{ $value_author->book_name }}</strong></h2>
-                    <p>Mã ID: {{ $value_author->isbn }}</p>
-                    <form action="" method="POST">
+                    <p>Mã ISBN: {{ $value_author->isbn }}</p>
+                    <form action="{{ URL::to('/save-cart') }}" method="POST">
                         {{ csrf_field() }}
                         <img src="images/product-details/rating.png" alt="" />
                         <span>
@@ -129,33 +129,37 @@
     @endforeach
 
     <div class="recommended_items"><!--recommended_items-->
-        <h2 class="title text-center" style="padding-top: 10px">SẢN PHẨM LIÊN QUAN {{$lienquan_author->author_name}}</h2>
+        <h2 class="title text-center" style="padding-top: 10px">SẢN PHẨM LIÊN QUAN {{ $value_author->author_name }}</h2>
         <div id="recommended-item-carousel" class="carousel slide" data-ride="carousel">
             <div class="carousel-inner">
-                @if (count($relate_to_author) > 0)
-                    <!-- Kiểm tra nếu có sản phẩm liên quan -->
-                    <a href="{{ URL::to('/chi-tiet-san-pham-theo-author/' . $lienquan_author->book_id) }}">
-                        <div class="item active">
-                            @foreach ($relate_to_author as $key => $lienquan_author)
-                                <div class="col-sm-4">
-                                    <div class="product-image-wrapper">
-                                        <div class="single-products">
-                                            <div class="productinfo text-center">
-                                                <img src="{{ URL::to('public/uploads/product/' . $lienquan_author->image) }}"
-                                                    alt="" />
-                                                <h2>{{ $lienquan_author->formatted_price = number_format($lienquan_author->price, 0, ',', '.') }}
-                                                    VNĐ</h2>
-                                                <p>{{ $limitWordsFunc($lienquan_author->book_name, 8) }}</p>
-                                                <a href="#" class="btn btn-default add-to-cart"><i
-                                                        class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng</a>
-                                            </div>
+                @if ($relate_to_author->isNotEmpty())
+                    <!-- Nếu có sản phẩm liên quan -->
+                    <div class="item active">
+                        @foreach ($relate_to_author as $key => $lienquan_author)
+                            <div class="col-sm-4">
+                                <div class="product-image-wrapper">
+                                    <div class="single-products">
+                                        <div class="productinfo text-center">
+                                            <img src="{{ URL::to('public/uploads/product/' . $lienquan_author->image) }}"
+                                                 alt="" />
+                                            <h2>{{ number_format($lienquan_author->price, 0, ',', '.') }} VNĐ</h2>
+                                            <p>{{ $limitWordsFunc($lienquan_author->book_name, 8) }}</p>
+                                            <a href="#" class="btn btn-default add-to-cart">
+                                                <i class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
-                        </div>
-                    </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <!-- Nếu không có sản phẩm liên quan -->
+                    <h3 style="text-align: center">Hiện tại không có sản phẩm liên quan nào.</h3>
+                    <p style="text-align: center">Hãy khám phá các danh mục khác để tìm kiếm sản phẩm phù hợp!</p>
+                @endif
             </div>
+            <!-- Các nút điều khiển carousel, vẫn hiển thị dù không có sản phẩm liên quan -->
             <a class="left recommended-item-control" href="#recommended-item-carousel" data-slide="prev">
                 <i class="fa fa-angle-left"></i>
             </a>
@@ -163,10 +167,5 @@
                 <i class="fa fa-angle-right"></i>
             </a>
         </div>
-    @else
-        <h3 style="text-align: center">Hiện tại không có sản phẩm liên quan nào.</h3>
-        <p style="text-align: center">Hãy khám phá các danh mục khác để tìm kiếm sản phẩm phù hợp!</p>
-        @endif
-
     </div><!--/recommended_items-->
-@endsection
+    @endsection
