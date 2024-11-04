@@ -593,8 +593,9 @@ ul.sub-menu {
 
 .girl {
   margin-left: 0;
+  padding-top: 35px;
+  margin-left: -35px;
 }
-
 .item h1 {
   color: #B4B1AB;
   font-family: abel;

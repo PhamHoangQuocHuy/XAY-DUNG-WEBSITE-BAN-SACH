@@ -1,7 +1,7 @@
 @extends('layout')
 @section('content')
     @foreach ($product_details_author as $key => $value_author)
-        <div class="product-details"><!--product-details-->
+        <div class="product-details" id="login-section"><!--product-details-->
             <div class="col-sm-5">
                 <div class="view-product">
                     <img src="{{ URL::to('public/uploads/product/' . $value_author->image) }}" alt="" />
@@ -20,7 +20,7 @@
                                             <div class="single-products">
                                                 <div class="productinfo text-center">
                                                     <img src="{{ URL::to('public/uploads/product/' . $lienquan_author->image) }}"
-                                                        alt="" width="100%" height="70%" />
+                                                        alt="" width="100%" height="30%" />
                                                 </div>
                                             </div>
                                         </div>
@@ -141,7 +141,7 @@
                                     <div class="single-products">
                                         <div class="productinfo text-center">
                                             <img src="{{ URL::to('public/uploads/product/' . $lienquan_author->image) }}"
-                                                 alt="" />
+                                                alt="" />
                                             <h2>{{ number_format($lienquan_author->price, 0, ',', '.') }} VNĐ</h2>
                                             <p>{{ $limitWordsFunc($lienquan_author->book_name, 8) }}</p>
                                             <a href="#" class="btn btn-default add-to-cart">
@@ -168,4 +168,15 @@
             </a>
         </div>
     </div><!--/recommended_items-->
-    @endsection
+@endsection
+<script>
+    // Tự động cuộn xuống phần form đăng nhập khi trang được tải
+    document.addEventListener("DOMContentLoaded", function() {
+        var loginSection = document.getElementById("login-section");
+        if (loginSection) {
+            loginSection.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
+    });
+</script>

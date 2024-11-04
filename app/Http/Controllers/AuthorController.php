@@ -113,6 +113,7 @@ class AuthorController extends Controller
     //END FUNCTION ADMIN PAGE
     public function show_author_home($author_id)
     {
+        $this->AuthLogin();
         $tacgia_book = DB::table('author')
             ->orderBy('author_id', 'asc')
             ->get();

@@ -237,7 +237,7 @@
                                     <button type="button" class="btn btn-default get">MUA NGAY</button>
                                 </div>
                                 <div class="col-sm-6">
-                                    <img src="{{ asset('public/frontend/images/girl1.jpg') }}"
+                                    <img src="{{ asset('public/frontend/images/slide1.jpg') }}"
                                         class="girl img-responsive" alt="" />
                                 </div>
                             </div>
@@ -250,7 +250,7 @@
                                     <button type="button" class="btn btn-default get">MUA NGAY</button>
                                 </div>
                                 <div class="col-sm-6">
-                                    <img src="{{ asset('public/frontend/images/girl1.jpg') }}"
+                                    <img src="{{ asset('public/frontend/images/slide2.jpg') }}"
                                         class="girl img-responsive" alt="" />
                                 </div>
                             </div>
@@ -264,7 +264,7 @@
                                     <button type="button" class="btn btn-default get">MUA NGAY</button>
                                 </div>
                                 <div class="col-sm-6">
-                                    <img src="{{ asset('public/frontend/images/girl1.jpg') }}"
+                                    <img src="{{ asset('public/frontend/images/slide3.jpg') }}"
                                         class="girl img-responsive" alt="" />
                                 </div>
                             </div>
@@ -455,7 +455,7 @@
 
     <script src="{{ asset('public/frontend/js/jquery.js') }}"></script>
     <script src="{{ asset('public/frontend/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('public/frontend/js/jquery.scrollUp.min.j') }}s"></script>
+    <script src="{{ asset('public/frontend/js/jquery.scrollUp.min.js') }}"></script>
     <script src="{{ asset('public/frontend/js/price-range.js') }}"></script>
     <script src="{{ asset('public/frontend/js/jquery.prettyPhoto.js') }}"></script>
     <script src="{{ asset('public/frontend/js/main.js') }}"></script>

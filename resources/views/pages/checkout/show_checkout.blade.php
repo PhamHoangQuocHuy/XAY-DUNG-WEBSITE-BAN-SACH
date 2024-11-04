@@ -44,18 +44,6 @@
                     </div>
                 </div>
             </div>
-            {{-- <div class="review-payment">
-            <h2>XEM LẠI GIỎ HÀNG</h2>
-        </div>
-
-        <div class="payment-options">
-                <span>
-                    <label><input type="checkbox"> Banking</label>
-                </span>
-                <span>
-                    <label><input type="checkbox"> Nhận hàng rồi thanh toán</label>
-                </span>
-            </div> --}}
         </div>
     </section> <!--/#cart_items-->
 @endsection

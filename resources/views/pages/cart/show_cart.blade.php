@@ -9,9 +9,7 @@
                 </ol>
             </div>
             <div class="table-responsive cart_info">
-                <?php
-                $content = Cart::content();
-                ?>
+                <?php $content = Cart::content(); ?>
                 <table class="table table-condensed">
                     <thead>
                         <tr class="cart_menu">
@@ -23,44 +21,37 @@
                             <td>THAO TÁC</td>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="cart-contents">
                         @foreach ($content as $value_content)
                             <tr>
                                 <td class="cart_product">
-                                    <a href=""> <img
+                                    <a href=""><img
                                             src="{{ URL::to('public/uploads/product/' . $value_content->options->image) }}"
-                                            width="50" alt="" />
-                                    </a>
+                                            width="50" alt="" /></a>
                                 </td>
                                 <td class="cart_description">
                                     <h4><a href="">{{ $limitWordsFunc($value_content->name, 4) }}</a></h4>
                                     <p>ISBN:{{ $value_content->options->isbn }}</p>
                                 </td>
                                 <td class="cart_price">
-                                    <p>{{ $value_content->formatted_price = number_format($value_content->price, 0, ',', '.') }}
-                                        VNĐ</p>
+                                    <p>{{ number_format($value_content->price, 0, ',', '.') }} VNĐ</p>
                                 </td>
                                 <td class="cart_quantity">
                                     <div class="cart_quantity_button">
-                                        <form action="{{ URL::to('/update-cart-quantity') }}" method="POST">
+                                        <form class="update-cart-form" action="{{ URL::to('/update-cart-quantity') }}"
+                                            method="POST">
                                             {{ csrf_field() }}
-                                            {{-- SỐ LƯỢNG --}}
                                             <input class="cart_quantity_input" type="text" name="cart_quantity"
                                                 value="{{ $value_content->qty }}" min="1">
                                             <input type="hidden" value="{{ $value_content->rowId }}" name="rowId_cart"
                                                 class="form-control">
-
-                                            <input type="submit" value="Cập nhật" name="update_qty"
-                                                class="btn btn-default btn-sm">
+                                            <button type="submit" class="btn btn-default btn-sm">Cập nhật</button>
                                         </form>
                                     </div>
                                 </td>
                                 <td class="cart_total">
                                     <p class="cart_total_price">
-                                        <?php
-                                        $subtotal = $value_content->price * $value_content->qty;
-                                        echo number_format($subtotal) . '' . 'VNĐ';
-                                        ?>
+                                        {{ number_format($value_content->price * $value_content->qty, 0, ',', '.') }} VNĐ
                                     </p>
                                 </td>
                                 <td class="cart_delete">
@@ -75,6 +66,7 @@
             </div>
         </div>
     </section> <!--/#cart_items-->
+
     <section id="do_action">
         <div class="container">
             <div class="row">
@@ -82,48 +74,100 @@
                 <div class="col-sm-6">
                     <div class="total_area">
                         <ul>
-                            <li>Tổng tiền<span>{{ Cart::subtotal(0, ',', '.') . ' ' . 'VNĐ' }}</span></li>
-                            <li>Thuế<span>0 VNĐ</span></li>
-                            <li>Tiền vận chuyển<span>Free</span></li>
-                            <li>Thành tiền <span>{{ Cart::subtotal(0, ',', '.') . ' ' . 'VNĐ' }}</span></li>
+                            <li>Tổng tiền <span id="total-amount">{{ Cart::subtotal(0, ',', '.') }} VNĐ</span></li>
+                            <li>Thuế <span>0 VNĐ</span></li>
+                            <li>Tiền vận chuyển <span>Free</span></li>
+                            <li>Thành tiền <span id="final-amount">{{ Cart::subtotal(0, ',', '.') }} VNĐ</span></li>
                         </ul>
                         <?php
                         $user_id = Session::get('user_id');
-                        $productCount = Cart::count(); // Sử dụng Cart::count() để đếm số lượng sản phẩm trong giỏ hàng
-                        
-                        if ($user_id != NULL) {
-                            if ($productCount == 0) {
-                                // Nếu giỏ hàng không có sản phẩm
-                                ?>
-                        <p class="alert alert-warning" style="font-size: 20px;font-weight: bold;color: red; text-align: center">Không có sản phẩm nào để thanh toán</p>
-                        <?php
-                            } else {
-                                // Nếu giỏ hàng có sản phẩm
-                                ?>
-                        <a class="btn btn-default check_out" href="{{ URL::to('/checkout') }}">THANH TOÁN</a>
-                        <?php
-                            }
-                        } else {
-                            ?>
-                        <a class="btn btn-default check_out" href="{{ URL::to('/login-checkout') }}">HÃY ĐĂNG NHẬP ĐỂ THANH
-                            TOÁN</a>
-                        <?php
-                        }
+                        $productCount = Cart::count();
                         ?>
+                        @if ($user_id != null)
+                            @if ($productCount == 0)
+                                <p class="alert alert-warning"
+                                    style="font-size: 20px;font-weight: bold;color: red; text-align: center">Không có sản
+                                    phẩm nào để thanh toán</p>
+                            @else
+                                <a class="btn btn-default check_out" href="{{ URL::to('/checkout') }}">THANH TOÁN</a>
+                            @endif
+                        @else
+                            <a class="btn btn-default check_out" href="{{ URL::to('/login-checkout') }}">HÃY ĐĂNG NHẬP ĐỂ
+                                THANH TOÁN</a>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-    </section><!--/#do_action-->
+    </section> <!--/#do_action-->
 @endsection
+
 <script>
-    // Tự động cuộn xuống phần form đăng nhập khi trang được tải
-    document.addEventListener("DOMContentLoaded", function() {
-        var loginSection = document.getElementById("login-section");
-        if (loginSection) {
-            loginSection.scrollIntoView({
-                behavior: "smooth"
-            });
-        }
+document.addEventListener("DOMContentLoaded", function() {
+    // AJAX for updating cart quantity
+    document.querySelectorAll('.update-cart-form').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(form);
+            fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update total amount in the summary
+                        document.getElementById('total-amount').innerText = data.totalAmount + " VNĐ";
+                        document.getElementById('final-amount').innerText = data.finalAmount + " VNĐ";
+
+                        // Find and update item total for this row
+                        const row = form.closest('tr');
+                        if (row) {
+                            row.querySelector('.cart_total_price').innerText = data.itemTotal + " VNĐ";
+                        }
+                    } else {
+                        console.error('Error:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
     });
+
+    // AJAX for deleting cart item
+    document.querySelectorAll('.cart_quantity_delete').forEach(function(deleteBtn) {
+        deleteBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            var url = this.href;
+
+            fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove item row
+                        const row = deleteBtn.closest('tr');
+                        if (row) {
+                            row.remove();
+                        }
+
+                        // Update total amount in the summary
+                        document.getElementById('total-amount').innerText = data.totalAmount + " VNĐ";
+                        document.getElementById('final-amount').innerText = data.finalAmount + " VNĐ";
+                    } else {
+                        console.error('Error:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+});
 </script>

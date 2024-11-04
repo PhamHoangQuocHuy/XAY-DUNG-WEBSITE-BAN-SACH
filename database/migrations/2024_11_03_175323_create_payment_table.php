@@ -13,12 +13,9 @@ return new class extends Migration
     {
         Schema::create('payment', function (Blueprint $table) {
             $table->integer('payment_id', true);
-            $table->integer('order_id')->index('order_id');
-            $table->integer('user_id')->index('user_id');
-            $table->string('username', 50);
-            $table->enum('payment_method', ['Online Payment', 'Cash on Delivery']);
+            $table->enum('payment_method', ['Banking', 'Cash on Delivery'])->default('Cash on Delivery');
             $table->dateTime('payment_date');
-            $table->enum('payment_status', ['Pending', 'Completed', 'Failed']);
+            $table->enum('payment_status', ['Pending', 'Completed', 'Failed'])->default('Pending');
         });
     }
 

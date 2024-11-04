@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Redirect;
 
 class HomeController extends Controller
 {
+    
     public function index()
     {
         $category_book = DB::table('category')

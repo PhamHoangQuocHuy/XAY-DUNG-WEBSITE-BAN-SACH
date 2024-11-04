@@ -135,6 +135,8 @@ class CategoryProduct extends Controller
     //End Function Admin Page
     public function show_category_home($category_id)
     {
+        $this->AuthLogin();
+
         $category_book = DB::table('category')
             ->where('status', 'active')
             ->orderBy('category_id', 'asc')

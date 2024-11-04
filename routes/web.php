@@ -15,7 +15,7 @@ use App\Http\Controllers\CheckoutController; // gọi controller của checkout
 // Route::get('/trang-chu','HomeController@index' ); 
 // Đây là cách cho laravel 8 trở xuống
 
-//User
+//User: KHÁCH HÀNG
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/trang-chu', [HomeController::class, 'index']);
 Route::post('/tim-kiem', [HomeController::class, 'search']);
@@ -34,6 +34,18 @@ Route::get('/admin', [AdminController::class, 'index']);
 Route::get('/dashboard', [AdminController::class, 'show_dashboard']);
 Route::post('/admin_dashboard', [AdminController::class, 'dashboard']); // đăng nhập thành công sẽ hiển thị
 Route::get('/logout', [AdminController::class, 'logout']);
+
+// ADMIN -> ORDER
+Route::get('/manage-order', [AdminController::class, 'manage_order']);
+Route::get('/view-order/{order_id}', [AdminController::class, 'view_order']);
+Route::get('/delete-order/{order_id}', [CartController::class, 'delete_order']);
+
+// ADMIN -> ACCOUNT
+Route::get('/manage-user', [AdminController::class, 'manage_user']);
+Route::get('/active-user/{user_id}', [AdminController::class, 'active_user']);
+Route::get('/inactive-user/{user_id}', [AdminController::class, 'inactive_user']);
+Route::get('/delete-user/{user_id}', [AdminController::class, 'delete_user']);
+Route::post('/user-login', [CheckoutController::class, 'lock_login']);
 
 //Category
 Route::get('/add-category', [CategoryProduct::class, 'add_category']);
@@ -96,9 +108,14 @@ Route::post('/save-checkout-customer', [CheckoutController::class, 'save_checkou
 Route::post('/user-login', [CheckoutController::class, 'user_login']);
 Route::post('/order-place', [CheckoutController::class, 'order_place']);
 
-
 Route::get('/payment', [CheckoutController::class, 'payment']);
 Route::get('/logout-checkout', [CheckoutController::class, 'logout_checkout']);
+
+Route::get('/edit-shipping', [CheckoutController::class, 'edit_shipping']);
+Route::post('/update-shipping', [CheckoutController::class, 'update_shipping']);
+
+
+
 
 // laravel 8 trở lên phải sử dụng [Controller::class, 'method'] theo cú pháp array-based
 // Gọi tên controller rồi đến hàm của controller đó

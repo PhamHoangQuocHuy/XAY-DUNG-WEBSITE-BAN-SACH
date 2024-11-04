@@ -21,10 +21,13 @@ class ProductController extends Controller
     }
     public function add_book()
     {
-        $this->AuthLogin();
-        $category_book = DB::table('category')->orderBy('category_id', 'asc')->get();
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')->get();
         $author_book = DB::table('author')->orderBy('author_id', 'asc')->get();
-        $supplier_book = DB::table('supplier')->orderBy('supplier_id', 'asc')->get();
+        $supplier_book = DB::table('supplier')
+            ->where('status', 'active')
+            ->orderBy('supplier_id', 'asc')->get();
         return view('admin.add_book')
             ->with('category_book', $category_book)
             ->with('author_book', $author_book)
@@ -33,7 +36,6 @@ class ProductController extends Controller
     // HIỂN THỊ TOÀN BỘ SÁCH
     public function all_book()
     {
-        $this->AuthLogin();
         $all_book = DB::table('book')
             ->join('category', 'category.category_id', '=', 'book.category_id')
             ->join('author', 'author.author_id', '=', 'book.author_id')
@@ -69,7 +71,6 @@ class ProductController extends Controller
     // THÊM SÁCH
     public function save_book(Request $request)
     {
-        $this->AuthLogin();
         // Thêm validation
         $request->validate([
             //'book_name' => 'required|regex:/^[\p{L} ]+$/u', // Chỉ cho phép ký tự chữ và khoảng trắng
@@ -142,7 +143,6 @@ class ProductController extends Controller
     // CHỈNH SỬA TRẠNG THÁI
     public function active_book($book_id)
     {
-        $this->AuthLogin();
         DB::table('book')->where('book_id', $book_id)->update(['status' => 'inactive']);
         Session::put('message', 'Đã đổi trạng thái thành không kích hoạt');
         return Redirect::to('all-book');
@@ -158,10 +158,12 @@ class ProductController extends Controller
     // SỬA SÁCH
     public function edit_book($book_id)
     {
-        $this->AuthLogin();
-        $category_book = DB::table('category')->orderBy('category_id', 'asc')->get();
-        $author_book = DB::table('author')->orderBy('author_id', 'asc')->get();
-        $supplier_book = DB::table('supplier')->orderBy('supplier_id', 'asc')->get();
+        $category_book = DB::table('category')
+            ->orderBy('category_id', 'asc')->get();
+        $author_book = DB::table('author')
+            ->orderBy('author_id', 'asc')->get();
+        $supplier_book = DB::table('supplier')
+            ->orderBy('supplier_id', 'asc')->get();
 
         $edit_book = DB::table('book')->where('book_id', $book_id)->get();
         $manager_book = view('admin.edit_book')
@@ -174,7 +176,6 @@ class ProductController extends Controller
 
     public function update_book(Request $request, $book_id)
     {
-        $this->AuthLogin();
         // Thêm validation
         $request->validate([
             //'book_name' => 'required|regex:/^[\p{L} ]+$/u', // Chỉ cho phép ký tự chữ và khoảng trắng
@@ -247,7 +248,6 @@ class ProductController extends Controller
     // XÓA SÁCH
     public function delete_book($book_id)
     {
-        $this->AuthLogin();
         // Lấy thông tin sách để lấy tên hình ảnh
         $book = DB::table('book')->where('book_id', $book_id)->first();
 
@@ -273,7 +273,6 @@ class ProductController extends Controller
     // GIỚI HẠN NỘI DUNG
     function limit_words_with_ellipsis($string, $word_limit)
     {
-        $this->AuthLogin();
         $words = explode(' ', $string);
         if (count($words) > $word_limit) {
             return implode(' ', array_splice($words, 0, $word_limit)) . '...';
@@ -284,6 +283,7 @@ class ProductController extends Controller
     //END FUNCTION ADMIN PAGE HERE
     public function show_nxb_home($book_id)
     {
+
         // NXB
         $nxb_book = DB::table('book')
             ->where('status', 'active')
@@ -342,6 +342,7 @@ class ProductController extends Controller
     // DETAILS PRODUCT
     public function details_product_cate($book_id)
     {
+
         // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
         $category_book = DB::table('category')
             ->where('status', 'active')
@@ -432,6 +433,7 @@ class ProductController extends Controller
     }
     public function details_product_author($book_id)
     {
+
         // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
         $category_book = DB::table('category')
             ->where('status', 'active')
@@ -523,6 +525,7 @@ class ProductController extends Controller
 
     public function details_product_nxb($book_id)
     {
+
         // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
         $category_book = DB::table('category')
             ->where('status', 'active')
@@ -608,6 +611,7 @@ class ProductController extends Controller
     }
     public function details_product_home($book_id)
     {
+
         // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
         $category_book = DB::table('category')
             ->where('status', 'active')
@@ -696,5 +700,4 @@ class ProductController extends Controller
             ->with('relate_home', $ralated_product_home) // sản phẩm liên quan
             ->with('limitWordsFunc', $limitWordsFunc);
     }
-
 }

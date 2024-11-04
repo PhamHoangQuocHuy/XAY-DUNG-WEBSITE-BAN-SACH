@@ -1,7 +1,7 @@
 @extends('layout')
 @section('content')
     @foreach ($product_details_nxb as $key => $value_nxb)
-        <div class="product-details"><!--product-details-->
+        <div class="product-details" id="login-section"><!--product-details-->
             <div class="col-sm-5">
                 <div class="view-product">
                     <img src="{{ URL::to('public/uploads/product/' . $value_nxb->image) }}" alt="" />
@@ -20,7 +20,7 @@
                                             <div class="single-products">
                                                 <div class="productinfo text-center">
                                                     <img src="{{ URL::to('public/uploads/product/' . $lienquan_nxb->image) }}"
-                                                        alt="" width="100%" height="70%" />
+                                                        alt="" width="100%" height="30%" />
                                                 </div>
                                             </div>
                                         </div>
@@ -165,3 +165,14 @@
         @endif
     </div><!--/recommended_items-->
 @endsection
+<script>
+    // Tự động cuộn xuống phần form đăng nhập khi trang được tải
+    document.addEventListener("DOMContentLoaded", function() {
+        var loginSection = document.getElementById("login-section");
+        if (loginSection) {
+            loginSection.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
+    });
+</script>
