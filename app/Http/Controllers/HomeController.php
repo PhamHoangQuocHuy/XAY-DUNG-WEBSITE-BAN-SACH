@@ -246,4 +246,5 @@ class HomeController extends Controller
             ->with('search_product', $search_product)
             ->with('limitWordsFunc', $limitWordsFunc);
     }
+    
 }

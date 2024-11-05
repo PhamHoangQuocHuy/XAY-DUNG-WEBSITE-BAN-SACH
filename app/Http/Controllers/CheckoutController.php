@@ -304,12 +304,12 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'email_account' => 'required|email',
-            'password_account' => 'required|min:6',
+            'password_account' => 'required|min:5',
         ], [
             'email_account.required' => 'Vui lòng nhập email.',
             'email_account.email' => 'Email không hợp lệ.',
             'password_account.required' => 'Vui lòng nhập mật khẩu.',
-            'password_account.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'password_account.min' => 'Mật khẩu phải có ít nhất 5 ký tự.',
         ]);
 
         $user = DB::table('user')

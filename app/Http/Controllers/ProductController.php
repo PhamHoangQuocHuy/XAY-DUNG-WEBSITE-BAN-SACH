@@ -10,15 +10,6 @@ use Illuminate\Support\Facades\Redirect;
 class ProductController extends Controller
 {
     // Kiểm tra đăng nhập không cho truy cập thẳng
-    public function AuthLogin()
-    {
-        $user_id = Session::get('user_id');
-        if ($user_id) {
-            return Redirect::to('dashboard');
-        } else {
-            return Redirect::to('admin')->send();
-        }
-    }
     public function add_book()
     {
         $category_book = DB::table('category')
@@ -342,7 +333,6 @@ class ProductController extends Controller
     // DETAILS PRODUCT
     public function details_product_cate($book_id)
     {
-
         // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
         $category_book = DB::table('category')
             ->where('status', 'active')
@@ -374,6 +364,11 @@ class ProductController extends Controller
             }
             return $string;
         };
+        $reviews = DB::table('review')
+            ->join('user', 'review.user_id', '=', 'user.user_id')
+            ->select('user.username', 'review.*')
+            ->where('book_id', $book_id)
+            ->get();
 
         // CHI TIẾT SẢN PHẨM
         $details_product_category = DB::table('book')
@@ -429,6 +424,7 @@ class ProductController extends Controller
             ->with('all_book', $all_book) // sách
             ->with('product_details', $details_product_category) // chi tiết sản phẩm
             ->with('relate', $ralated_product) // sản phẩm liên quan
+            ->with('reviews', $reviews)
             ->with('limitWordsFunc', $limitWordsFunc);
     }
     public function details_product_author($book_id)
@@ -465,7 +461,11 @@ class ProductController extends Controller
             }
             return $string;
         };
-
+        $reviews = DB::table('review')
+            ->join('user', 'review.user_id', '=', 'user.user_id')
+            ->select('user.username', 'review.*')
+            ->where('book_id', $book_id)
+            ->get();
         // CHI TIẾT SẢN PHẨM
         $details_product_author = DB::table('book')
             ->join('category', 'category.category_id', '=', 'book.category_id')
@@ -520,6 +520,7 @@ class ProductController extends Controller
             ->with('all_book', $all_book) // sách
             ->with('product_details_author', $details_product_author) // chi tiết sản phẩm
             ->with('relate_to_author', $ralated_product_author) // sản phẩm liên quan
+            ->with('reviews', $reviews)
             ->with('limitWordsFunc', $limitWordsFunc);
     }
 
@@ -557,6 +558,11 @@ class ProductController extends Controller
             }
             return $string;
         };
+        $reviews = DB::table('review')
+            ->join('user', 'review.user_id', '=', 'user.user_id')
+            ->select('user.username', 'review.*')
+            ->where('book_id', $book_id)
+            ->get();
 
         // CHI TIẾT SẢN PHẨM
         $details_product_nxb = DB::table('book')
@@ -607,11 +613,11 @@ class ProductController extends Controller
             ->with('all_book', $all_book) // sách
             ->with('product_details_nxb', $details_product_nxb) // chi tiết sản phẩm
             ->with('relate_to_nxb', $ralated_product_nxb) // sản phẩm liên quan
+            ->with('reviews', $reviews)
             ->with('limitWordsFunc', $limitWordsFunc);
     }
     public function details_product_home($book_id)
     {
-
         // code phải có ở các danh mục: thể loại, tác giả, nxb, sách. Chổ nào thiếu thì điền vô
         $category_book = DB::table('category')
             ->where('status', 'active')
@@ -620,7 +626,7 @@ class ProductController extends Controller
 
         $tacgia_book = DB::table('author')
             ->orderBy('author_id', 'asc')
-            ->get(); // thêm biến tacgia_book
+            ->get();
 
         // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
         $all_publishers = DB::table('book')
@@ -690,14 +696,163 @@ class ProductController extends Controller
                 return $book;
             });
 
+        $reviews = DB::table('review')
+            ->join('user', 'review.user_id', '=', 'user.user_id')
+            ->select('user.username', 'review.*')
+            ->where('book_id', $book_id)
+            ->get();
 
         return view('pages.sanpham.show_details_home')
-            ->with('category', $category_book) // thể loại
+            ->with('category', $category_book) // thể  ại
             ->with('publisher_list', $publisher_list) // nxb
             ->with('tacgia_book', $tacgia_book) // tác giả
             ->with('all_book', $all_book) // sách
             ->with('product_details_home', $details_product_home) // chi tiết sản phẩm
             ->with('relate_home', $ralated_product_home) // sản phẩm liên quan
+            ->with('reviews', $reviews)
             ->with('limitWordsFunc', $limitWordsFunc);
+    }
+
+    //REVIEW
+    public function show_review($book_id)
+    {
+        $category_book = DB::table('category')->where('status', 'active')->orderBy('category_id', 'asc')->get();
+        $tacgia_book = DB::table('author')->orderBy('author_id', 'asc')->get();
+        $all_publishers = DB::table('book')->select('publisher', 'book_id')->where('status', 'active')->orderBy('publisher', 'desc')->limit(4)->get();
+        $publisher_list = $all_publishers->unique('publisher')->values();
+        $all_book = DB::table('book')->where('status', 'active')->orderBy('book_id', 'asc')->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+
+        $reviews = DB::table('review')
+            ->join('user', 'review.user_id', '=', 'user.user_id')
+            ->select('user.username', 'review.*')
+            ->where('book_id', $book_id)
+            ->get();
+
+        return view('book.show_details_home')
+            ->with('category_book', $category_book)
+            ->with('publisher_list', $publisher_list)
+            ->with('tacgia_book', $tacgia_book)
+            ->with('all_book', $all_book)
+            ->with('reviews', $reviews)
+            ->with('limitWordsFunc', $limitWordsFunc);
+    }
+    // THÊM ĐÁNH GIÁ/ BÌNH LUẬN
+    public function save_review(Request $request, $book_id)
+    {
+        $user_id = Session::get('user_id');
+        if ($user_id == NULL) {
+            return redirect('/login-checkout')->with('message', 'Bạn phải đăng nhập để có thể đánh giá!');
+        }
+
+        $request->validate([
+            'comment' => 'required|string|min:5',
+            'rating' => 'required|integer|min:1|max:5',
+        ]);
+
+        $data = array();
+        $data['book_id'] = $book_id;
+        $data['user_id'] = $user_id;
+        $data['comment'] = $request->comment;
+        $data['rating'] = $request->rating;
+        $data['review_date'] = now();
+
+        DB::table('review')->insert($data);
+
+        return redirect()->back()->with('message', 'Đánh giá và bình luận của bạn đã được ghi nhận');
+    }
+    // XÓA ĐÁNH GIÁ/ BÌNH LUẬN
+    public function delete_review($review_id)
+    {
+        $user_id = Session::get('user_id');
+        $review = DB::table('review')->where('review_id', $review_id)->first();
+
+        // Kiểm tra xem người dùng có phải là người đã đăng bình luận hay không
+        if ($review && $review->user_id == $user_id) {
+            DB::table('review')->where('review_id', $review_id)->delete();
+            return redirect()->back()->with('message', 'Bình luận đã được xóa thành công');
+        }
+
+        return redirect()->back()->with('message', 'Bạn không có quyền xóa bình luận này');
+    }
+    // SỬA ĐÁNH GIÁ/ BÌNH LUẬN
+    public function edit_review($review_id)
+    {
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get();
+
+        // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        // Loại bỏ nhà xuất bản trùng lặp
+        $publisher_list = $all_publishers->unique('publisher')->values();
+        $all_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+
+        $user_id = Session::get('user_id');
+        $review = DB::table('review')->where('review_id', $review_id)->first();
+
+        // Kiểm tra xem người dùng có phải là người đã đăng bình luận hay không
+        if ($review && $review->user_id == $user_id) {
+            return view('pages.sanpham.edit_review')
+                ->with('category', $category_book) // thể  ại
+                ->with('publisher_list', $publisher_list) // nxb
+                ->with('tacgia_book', $tacgia_book) // tác giả
+                ->with('all_book', $all_book) // sách
+                ->with('review', $review)
+                ->with('limitWordsFunc', $limitWordsFunc);
+        }
+
+        return redirect()->back()->with('message', 'Bạn không có quyền chỉnh sửa bình luận này');
+    }
+    public function update_review(Request $request, $review_id)
+    {
+        $user_id = Session::get('user_id');
+        $review = DB::table('review')->where('review_id', $review_id)->first();
+        $product_id = $review->book_id;
+        // Kiểm tra xem người dùng có phải là người đã đăng bình luận hay không
+        if ($review && $review->user_id == $user_id) {
+            $request->validate([
+                'comment' => 'required|string|min:5',
+                'rating' => 'required|integer|min:1|max:5',
+            ]);
+
+            DB::table('review')->where('review_id', $review_id)->update([
+                'comment' => $request->comment,
+                'rating' => $request->rating,
+                'review_date' => now(),
+            ]);
+
+            return redirect('/chi-tiet-san-pham-theo-trang-chu/' . $product_id)->with('message', 'Bình luận đã được cập nhật thành công');
+        }
+
+        return redirect()->back()->with('message', 'Bạn không có quyền chỉnh sửa bình luận này');
     }
 }

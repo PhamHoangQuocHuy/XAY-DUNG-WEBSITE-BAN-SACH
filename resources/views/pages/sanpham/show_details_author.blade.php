@@ -87,7 +87,8 @@
             <div class="col-sm-12">
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#details" data-toggle="tab">THÔNG TIN CHI TIẾT</a></li>
-                    <li><a href="#reviews" data-toggle="tab">ĐÁNH GIÁ (5)</a></li>
+                    <li><a href="#reviews" data-toggle="tab" data-book-id="{{ $value_author->book_id }}">XEM ĐÁNH GIÁ/ BÌNH
+                            LUẬN</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -95,32 +96,135 @@
                     <h1 style="color: #FE980F;text-align: center">MÔ TẢ {{ $value_author->book_name }}</h1>
                     <p><strong>{!! $value_author->description !!}</strong></p>
                 </div>
+
                 <div class="tab-pane fade" id="reviews">
                     <div class="col-sm-12">
-                        <ul>
-                            <li><a href=""><i class="fa fa-user"></i>EUGEN</a></li>
-                            <li><a href=""><i class="fa fa-clock-o"></i>12:41 PM</a></li>
-                            <li><a href=""><i class="fa fa-calendar-o"></i>31 DEC 2014</a></li>
-                        </ul>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
-                            labore
-                            et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi
-                            ut
-                            aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse
-                            cillum dolore eu fugiat nulla pariatur.</p>
-                        <p><b>Write Your Review</b></p>
+                        {{-- EDIT SHOW REVIEW --}}
+                        <style type="text/css">
+                            .style_comment {
+                                border: 1px solid #ddd;
+                                border-radius: 10px;
+                                background: #F0F0E9;
+                            }
 
-                        <form action="#">
-                            <span>
-                                <input type="text" placeholder="Your Name" />
-                                <input type="email" placeholder="Email Address" />
-                            </span>
-                            <textarea name=""></textarea>
-                            <b>Rating: </b> <img src="images/product-details/rating.png" alt="" />
-                            <button type="button" class="btn btn-default pull-right">
-                                Submit
-                            </button>
+                            img.img.img-responsive.img-thumbnail.avatar-edit {
+                                margin-top: 25px;
+                                margin-bottom: 10px;
+                                width: 80px;
+                                border-radius: 100px;
+                            }
+
+                            .col-md-10.review-text-edit {
+                                margin-left: -80px;
+                                padding-top: 12px;
+                            }
+                        </style>
+                        {{-- END --}}
+                        {{-- HIỂN THỊ ĐÁNH GIÁ BÌNH LUẬN --}}
+                        @if ($reviews->isNotEmpty())
+                            @foreach ($reviews as $review)
+                                <div class="row style_comment">
+                                    <div class="col-md-2">
+                                        <img width="100%" src="{{ asset('public/frontend/images/avatar_review.png') }}"
+                                            class="img img-responsive img-thumbnail avatar-edit">
+                                    </div>
+                                    <div class="col-md-10 review-text-edit">
+                                        <p style="color:blue;font-weight: bold">{{ $review->username }}</p>
+                                        <p>{{ $review->comment }}</p>
+                                        {{-- XÓA VÀ SỬA ĐÁNH GIÁ BÌNH LUẬN --}}
+                                        @if (Session::get('user_id') == $review->user_id)
+                                            <form action="{{ URL::to('/delete-review/' . $review->review_id) }}"
+                                                method="POST" style="display: inline;">
+                                                {{ csrf_field() }}
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-primary"
+                                                    style="float: right; margin: -17px 25px; margin-right: 50px;">Xóa</button>
+                                            </form>
+
+                                            <form action="{{ URL::to('/edit-review/' . $review->review_id) }}"
+                                                method="GET" style="display: inline;">
+                                                {{ csrf_field() }}
+                                                <button type="submit" class="btn btn-primary"
+                                                    style="float: right; margin: -17px">Sửa</button>
+                                            </form>
+                                        @endif
+
+                                        <p>
+                                        <div class="review-star-rating">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                @if ($i <= $review->rating)
+                                                    <span class="fa fa-star-o checked" style="color:#f39c12; "></span>
+                                                @else
+                                                    <span class="fa fa-star-o"></span>
+                                                @endif
+                                            @endfor
+                                        </div>
+                                        </p>
+                                        <p>Bình luận vào lúc: {{ date('d/m/Y H:i:s', strtotime($review->review_date)) }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <br>
+                            @endforeach
+                        @else
+                            <p style="font-size: 24px;margin-top: 10px;margin-bottom: 30px; font-weight: bold">Chưa có đánh
+                                giá/ bình luận nào. Hãy là người đầu tiên cho chúng tôi biết cảm nghĩ của bạn
+                                nhé!</p>
+                        @endif
+
+
+                        {{-- THÊM ĐÁNH GIÁ/ BÌNH LUẬN --}}
+                        <?php
+                        $user_id = Session::get('user_id');
+                        if ($user_id != NULL) {
+                        ?>
+                        <form action="{{ URL::to('/save-review/' . $value_author->book_id) }}" method="POST">
+                            {{ csrf_field() }}
+                            <textarea name="comment" placeholder="Hãy cho chúng tôi biết cảm nghĩ của bạn !" required></textarea>
+                            @if ($errors->has('comment'))
+                                <span class="text-danger">{{ $errors->first('comment') }}</span>
+                            @endif
+
+                            <div class="star-rating">
+                                <b>ĐÁNH GIÁ:</b>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <span class="fa fa-star" data-rating="{{ $i }}"></span>
+                                @endfor
+                                <input type="hidden" name="rating" class="rating-value" value="0">
+                            </div>
+                            @if ($errors->has('rating'))
+                                <span class="text-danger">{{ $errors->first('rating') }}</span>
+                            @endif
+                            <button type="submit" class="btn btn-default pull-right">GỬI</button>
                         </form>
+
+
+                        {{-- EDIT STAR --}}
+                        <style>
+                            .star-rating {
+                                display: flex;
+                            }
+
+                            .fa-star {
+                                font-size: 24px;
+                                color: #ddd;
+                                cursor: pointer;
+                            }
+
+                            .fa-star.hover,
+                            .fa-star.checked {
+                                color: #f39c12;
+                            }
+                        </style>
+                        {{-- END EDIT STAR --}}
+                        <?php
+                        } else {
+                        ?>
+                        <a href="{{ url('/login-checkout') }}" class="btn btn-primary">Hãy đăng nhập để đánh giá/bình
+                            luận</a>
+                        <?php
+                        }
+                        ?>
                     </div>
                 </div>
 
@@ -178,5 +282,51 @@
                 behavior: "smooth"
             });
         }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const stars = document.querySelectorAll('.fa-star');
+        let rating = document.querySelector('.rating-value');
+
+        stars.forEach(star => {
+            star.addEventListener('mouseover', function() {
+                resetStars();
+                this.classList.add('hover');
+                let prevStar = this.previousElementSibling;
+
+                while (prevStar) {
+                    prevStar.classList.add('hover');
+                    prevStar = prevStar.previousElementSibling;
+                }
+            });
+
+            star.addEventListener('mouseout', function() {
+                resetStars();
+                setStars(rating.value);
+            });
+
+            star.addEventListener('click', function() {
+                rating.value = this.dataset.rating;
+                setStars(rating.value);
+            });
+        });
+
+        function resetStars() {
+            stars.forEach(star => {
+                star.classList.remove('hover');
+                star.classList.remove('checked');
+            });
+        }
+
+        function setStars(value) {
+            stars.forEach(star => {
+                if (star.dataset.rating <= value) {
+                    star.classList.add('checked');
+                }
+            });
+        }
+
+        setStars(rating.value);
     });
 </script>

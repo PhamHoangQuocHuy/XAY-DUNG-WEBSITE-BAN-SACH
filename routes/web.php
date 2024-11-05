@@ -114,6 +114,13 @@ Route::get('/logout-checkout', [CheckoutController::class, 'logout_checkout']);
 Route::get('/edit-shipping', [CheckoutController::class, 'edit_shipping']);
 Route::post('/update-shipping', [CheckoutController::class, 'update_shipping']);
 
+//REVIEW
+Route::get('/book-review/{book_id}', [ProductController::class, 'show_review']);
+Route::post('/save-review/{book_id}', [ProductController::class, 'save_review']);
+
+Route::delete('/delete-review/{review_id}', [ProductController::class, 'delete_review']);
+Route::get('/edit-review/{review_id}', [ProductController::class, 'edit_review']);
+Route::put('/update-review/{review_id}', [ProductController::class, 'update_review']);
 
 
 
