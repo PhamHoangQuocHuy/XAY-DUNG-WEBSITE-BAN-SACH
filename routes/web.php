@@ -122,7 +122,23 @@ Route::delete('/delete-review/{review_id}', [ProductController::class, 'delete_r
 Route::get('/edit-review/{review_id}', [ProductController::class, 'edit_review']);
 Route::put('/update-review/{review_id}', [ProductController::class, 'update_review']);
 
+// QUÊN MẬT KHẨU
+Route::get('/quen-mat-khau', [AdminController::class, 'showForgotPasswordForm']);
+Route::post('/quen-mat-khau', [AdminController::class, 'sendResetLinkEmail']);
+Route::get('/reset-password/{token}', [AdminController::class, 'showResetForm']);
+Route::post('/reset-password', [AdminController::class, 'resetPassword']);
 
+// THAY ĐỔI THÔNG TIN TÀI KHOẢN NGƯỜI DÙNG
+Route::get('/user-info/{user_id}', [AdminController::class, 'showUserInfo']);
+Route::put('/user-info/{user_id}', [AdminController::class, 'updateUserInfo']);
+
+// TÌM SẢN TRONG ADMIN
+Route::get('/search-book', [ProductController::class, 'search_book']);
+Route::get('/search-category', [CategoryProduct::class, 'search_category']);
+Route::get('/search-supplier', [SupplierController::class, 'search_supplier']);
+Route::get('/search-author', [AuthorController::class, 'search_author']);
+Route::get('/search-order', [AdminController::class, 'search_order']);
+Route::get('/search-user', [AdminController::class, 'search_user']);
 
 // laravel 8 trở lên phải sử dụng [Controller::class, 'method'] theo cú pháp array-based
 // Gọi tên controller rồi đến hàm của controller đó

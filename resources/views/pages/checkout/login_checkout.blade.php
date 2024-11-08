@@ -14,8 +14,9 @@
                                 placeholder="Nhập email" required />
                             <input type="password" name="password_account" placeholder="Nhập password" required />
                             <span>
-                                <input type="checkbox" class="checkbox">
-                                Lưu đăng nhập
+                                <a href="{{ URL::to('/quen-mat-khau') }}">
+                                    Quên mật khẩu
+                                </a>
                             </span>
                             <button type="submit" name="login" class="btn btn-default">ĐĂNG NHẬP</button>
                         </form>

@@ -25,8 +25,6 @@
                     </div>
                     <div class="choose">
                         <ul class="nav nav-pills nav-justified">
-                            <li><a href="#"><i class="fa fa-plus-square"></i>Thêm yêu thích</a></li>
-                            <li><a href="#"><i class="fa fa-plus-square"></i>Thêm so sánh</a></li>
                         </ul>
                     </div>
                 </div>
@@ -34,6 +32,17 @@
         @endforeach
     </div>
     <!--features_items-->
+    {{-- PHÂN TRANG --}}
+    <footer class="panel-footer" style="background-color: white; float: right;">
+        <div class="row">
+            <div class="col-sm-7 text-right text-center-xs" style="margin-right: 450px;margin-top: 25px;">
+                <div class="col-sm-7 text-right text-center-xs">
+                    {{ $nxb_by_id->links('pagination::bootstrap-4') }}
+                    <!-- Sử dụng kiểu phân trang Bootstrap 4 -->
+                </div>
+            </div>
+        </div>
+    </footer>
 @endsection
 <script>
     // Tự động cuộn xuống phần form đăng nhập khi trang được tải

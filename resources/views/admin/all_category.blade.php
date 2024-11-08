@@ -5,27 +5,24 @@
             <div class="panel-heading" style="font-weight: bold">
                 LIỆT KÊ DANH MỤC SÁCH
             </div>
+
             <div class="row w3-res-tb">
-                <div class="col-sm-5 m-b-xs">
-                    <select class="input-sm form-control w-sm inline v-middle">
-                        <option value="0">Bulk action</option>
-                        <option value="1">Delete selected</option>
-                        <option value="2">Bulk edit</option>
-                        <option value="3">Export</option>
-                    </select>
-                    <button class="btn btn-sm btn-default">Apply</button>
+
+                <div class="col-sm-5">
                 </div>
-                <div class="col-sm-4">
-                </div>
-                <div class="col-sm-3">
-                    <div class="input-group">
-                        <input type="text" class="input-sm form-control" placeholder="Search">
-                        <span class="input-group-btn">
-                            <button class="btn btn-sm btn-default" type="button">Go!</button>
-                        </span>
+                <div class="col-sm-7">
+                    <div class="input-group" style="display: flex">
+                        <form action="{{ URL::to('/search-category') }}" method="GET">
+                            <input type="text" name="query" class="input-sm form-control" placeholder="Search">
+                            <span class="input-group-btn">
+                                <button class="btn btn-sm btn-primary" style="margin-right: -45px"
+                                    type="submit">Tìm</button>
+                            </span>
+                        </form>
                     </div>
                 </div>
             </div>
+
             <div class="table-responsive">
                 <?php
                 $message = Session::get('message');
@@ -44,16 +41,21 @@
                             </th>
                             <th style="text-align: center;color: black">TÊN DANH MỤC</th>
                             <th style="text-align: center;color: black">TRẠNG THÁI</th>
-                            
+
                             <th style="text-align: center; width: 100px;color: black">THAO TÁC</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @if ($errors->any())
+                            <div class="alert alert-danger"> {{ $errors->first() }} </div>
+                        @endif
+
                         @foreach ($all_category as $key => $cate)
                             <tr>
                                 <td style="text-align: center;align-content: center"><label class="i-checks m-b-none"><input
                                             type="checkbox" name="post[]"><i></i></label></td>
-                                <td style="text-align: center;align-content: center; color: black">{{ $cate->category_name }}</td>
+                                <td style="text-align: center;align-content: center; color: black">
+                                    {{ $cate->category_name }}</td>
                                 <td style="text-align: center;align-content: center"><span class="text-ellipsis">
                                         <?php
                                         if ($cate->status != 'inactive') {
@@ -70,10 +72,13 @@
                                         ?>
                                     </span></td>
                                 <td style="text-align: center; align-content: center;">
-                                    <a href="{{URL::to('edit-category/'. $cate->category_id)}}" class="active" ui-toggle-class="">
-                                        <i class="fa fa-wrench text-info text-active"style="color: #007bff; font-size: 30px; margin: 0 5px;"></i>
+                                    <a href="{{ URL::to('edit-category/' . $cate->category_id) }}" class="active"
+                                        ui-toggle-class="">
+                                        <i
+                                            class="fa fa-wrench text-info text-active"style="color: #007bff; font-size: 30px; margin: 0 5px;"></i>
                                     </a>
-                                    <a onclick="return confirm ('Bạn có chắc muốn xóa danh mục: {{ $cate->category_name }}?')" href="{{URL::to('delete-category/'. $cate->category_id)}}">
+                                    <a onclick="return confirm ('Bạn có chắc muốn xóa danh mục: {{ $cate->category_name }}?')"
+                                        href="{{ URL::to('delete-category/' . $cate->category_id) }}">
                                         <i class="fa fa-trash text-danger" style="font-size: 30px;margin: 0 5px;"></i>
                                     </a>
                                 </td>
@@ -84,19 +89,11 @@
             </div>
             <footer class="panel-footer">
                 <div class="row">
-
-                    <div class="col-sm-5 text-center">
-                        <small class="text-muted inline m-t-sm m-b-sm">showing 20-30 of 50 items</small>
-                    </div>
                     <div class="col-sm-7 text-right text-center-xs">
-                        <ul class="pagination pagination-sm m-t-none m-b-none">
-                            <li><a href=""><i class="fa fa-chevron-left"></i></a></li>
-                            <li><a href="">1</a></li>
-                            <li><a href="">2</a></li>
-                            <li><a href="">3</a></li>
-                            <li><a href="">4</a></li>
-                            <li><a href=""><i class="fa fa-chevron-right"></i></a></li>
-                        </ul>
+                        <div class="col-sm-7 text-right text-center-xs">
+                            {{ $all_category->links('pagination::bootstrap-4') }}
+                            <!-- Sử dụng kiểu phân trang Bootstrap 4 -->
+                        </div>
                     </div>
                 </div>
             </footer>

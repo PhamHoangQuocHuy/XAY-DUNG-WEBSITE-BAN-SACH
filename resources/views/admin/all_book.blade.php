@@ -6,26 +6,22 @@
                 LIỆT KÊ SÁCH
             </div>
             <div class="row w3-res-tb">
-                <div class="col-sm-5 m-b-xs">
-                    <select class="input-sm form-control w-sm inline v-middle">
-                        <option value="0">Bulk action</option>
-                        <option value="1">Delete selected</option>
-                        <option value="2">Bulk edit</option>
-                        <option value="3">Export</option>
-                    </select>
-                    <button class="btn btn-sm btn-default">Apply</button>
+
+                <div class="col-sm-5">
                 </div>
-                <div class="col-sm-4">
-                </div>
-                <div class="col-sm-3">
-                    <div class="input-group">
-                        <input type="text" class="input-sm form-control" placeholder="Search">
-                        <span class="input-group-btn">
-                            <button class="btn btn-sm btn-default" type="button">Go!</button>
-                        </span>
+                <div class="col-sm-7">
+                    <div class="input-group" style="display: flex">
+                        <form action="{{ URL::to('/search-book') }}" method="GET">
+                            <input type="text" name="query" class="input-sm form-control" placeholder="Search">
+                            <span class="input-group-btn">
+                                <button class="btn btn-sm btn-primary" style="margin-right: -45px"
+                                    type="submit">Tìm</button>
+                            </span>
+                        </form>
                     </div>
                 </div>
             </div>
+
             <div class="table-responsive">
                 <?php
                 $message = Session::get('message');
@@ -60,6 +56,9 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if ($errors->any())
+                            <div class="alert alert-danger"> {{ $errors->first() }} </div>
+                        @endif
                         @foreach ($all_book as $key => $book)
                             <tr>
                                 <td style="text-align: center;align-content: center">
@@ -92,7 +91,7 @@
                                     {{ $book->quantity }}
                                 </td>
                                 <td style="text-align: center;align-content: center; color: black">
-                                    {{ $book->formatted_price }} VNĐ
+                                    {{ number_format($book->price, 0, ',', '.') }} VNĐ
                                 </td>
                                 <td style="text-align: center;align-content: center; color: black">
                                     {{ $limitWordsFunc($book->description, 5) }}
@@ -108,21 +107,21 @@
                                     {{ $limitWordsFunc($book->tags, 3) }}
                                 </td>
                                 <td style="text-align: center;align-content: center"><span class="text-ellipsis">
-                                    <?php
+                                        <?php
                                     if ($book->status != 'inactive') {
                                         ?>
-                                    <a href="{{ URL::to('/active-book/' . $book->book_id) }}"><span
-                                            class="fa-toggle-styling fa fa-toggle-on"></span></a>;
-                                    <?php
+                                        <a href="{{ URL::to('/active-book/' . $book->book_id) }}"><span
+                                                class="fa-toggle-styling fa fa-toggle-on"></span></a>;
+                                        <?php
                                     } else {
                                         ?>
-                                    <a href="{{ URL::to('/inactive-book/' . $book->book_id) }}"><span
-                                            class="fa-toggle-styling fa fa-toggle-off"></span></a>;
-                                    <?php
+                                        <a href="{{ URL::to('/inactive-book/' . $book->book_id) }}"><span
+                                                class="fa-toggle-styling fa fa-toggle-off"></span></a>;
+                                        <?php
                                     }
                                     ?>
-                                </span></td>
-                            <td style="text-align: center; align-content: center;">
+                                    </span></td>
+                                <td style="text-align: center; align-content: center;">
                                     <a href="{{ URL::to('edit-book/' . $book->book_id) }}" class="active"
                                         ui-toggle-class="">
                                         <i class="fa fa-wrench text-info text-active"
@@ -140,18 +139,11 @@
             </div>
             <footer class="panel-footer">
                 <div class="row">
-                    <div class="col-sm-5 text-center">
-                        <small class="text-muted inline m-t-sm m-b-sm">showing 20-30 of 50 items</small>
-                    </div>
                     <div class="col-sm-7 text-right text-center-xs">
-                        <ul class="pagination pagination-sm m-t-none m-b-none">
-                            <li><a href=""><i class="fa fa-chevron-left"></i></a></li>
-                            <li><a href="">1</a></li>
-                            <li><a href="">2</a></li>
-                            <li><a href="">3</a></li>
-                            <li><a href="">4</a></li>
-                            <li><a href=""><i class="fa fa-chevron-right"></i></a></li>
-                        </ul>
+                        <div class="col-sm-7 text-right text-center-xs">
+                            {{ $all_book->links('pagination::bootstrap-4') }}
+                            <!-- Sử dụng kiểu phân trang Bootstrap 4 -->
+                        </div>
                     </div>
                 </div>
             </footer>

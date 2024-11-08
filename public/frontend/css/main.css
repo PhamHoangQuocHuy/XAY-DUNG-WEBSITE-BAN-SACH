@@ -2637,3 +2637,10 @@ img.payment_styling {
   width: 100%; /* Cho phép container trong footer giãn toàn bộ chiều rộng */
   padding: 0 15px; /* Thêm padding cho phù hợp với trang */
 }
+.nav-item .dropdown-menu {
+  background-color: #f8f9fa;
+}
+
+.nav-item .dropdown-item:hover {
+  background-color: #e9ecef;
+}

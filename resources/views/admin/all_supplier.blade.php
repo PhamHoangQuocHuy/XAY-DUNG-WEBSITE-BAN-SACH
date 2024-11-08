@@ -6,23 +6,18 @@
                 LIỆT KÊ NHÀ CUNG CẤP
             </div>
             <div class="row w3-res-tb">
-                <div class="col-sm-5 m-b-xs">
-                    <select class="input-sm form-control w-sm inline v-middle">
-                        <option value="0">Bulk action</option>
-                        <option value="1">Delete selected</option>
-                        <option value="2">Bulk edit</option>
-                        <option value="3">Export</option>
-                    </select>
-                    <button class="btn btn-sm btn-default">Apply</button>
+
+                <div class="col-sm-5">
                 </div>
-                <div class="col-sm-4">
-                </div>
-                <div class="col-sm-3">
-                    <div class="input-group">
-                        <input type="text" class="input-sm form-control" placeholder="Search">
-                        <span class="input-group-btn">
-                            <button class="btn btn-sm btn-default" type="button">Go!</button>
-                        </span>
+                <div class="col-sm-7">
+                    <div class="input-group" style="display: flex">
+                        <form action="{{ URL::to('/search-supplier') }}" method="GET">
+                            <input type="text" name="query" class="input-sm form-control" placeholder="Search">
+                            <span class="input-group-btn">
+                                <button class="btn btn-sm btn-primary" style="margin-right: -45px"
+                                    type="submit">Tìm</button>
+                            </span>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -51,6 +46,9 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if ($errors->any())
+                            <div class="alert alert-danger"> {{ $errors->first() }} </div>
+                        @endif
                         @foreach ($all_supplier as $key => $sup)
                             <tr>
                                 <td style="text-align: center;align-content: center"><label class="i-checks m-b-none"><input
@@ -96,19 +94,11 @@
             </div>
             <footer class="panel-footer">
                 <div class="row">
-
-                    <div class="col-sm-5 text-center">
-                        <small class="text-muted inline m-t-sm m-b-sm">showing 20-30 of 50 items</small>
-                    </div>
                     <div class="col-sm-7 text-right text-center-xs">
-                        <ul class="pagination pagination-sm m-t-none m-b-none">
-                            <li><a href=""><i class="fa fa-chevron-left"></i></a></li>
-                            <li><a href="">1</a></li>
-                            <li><a href="">2</a></li>
-                            <li><a href="">3</a></li>
-                            <li><a href="">4</a></li>
-                            <li><a href=""><i class="fa fa-chevron-right"></i></a></li>
-                        </ul>
+                        <div class="col-sm-7 text-right text-center-xs">
+                            {{ $all_supplier->links('pagination::bootstrap-4') }}
+                            <!-- Sử dụng kiểu phân trang Bootstrap 4 -->
+                        </div>
                     </div>
                 </div>
             </footer>

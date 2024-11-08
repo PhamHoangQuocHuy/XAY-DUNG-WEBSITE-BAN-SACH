@@ -41,11 +41,8 @@ class ProductController extends Controller
                 'supplier.supplier_email',
                 'supplier.supplier_address'
             )
-            ->get()
-            ->map(function ($book) {
-                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
-                return $book;
-            });
+            ->paginate(6); // Giới hạn 5 sách mỗi trang
+
         // Hàm giới hạn từ
         $limitWordsFunc = function ($string, $word_limit) {
             $words = explode(' ', $string);
@@ -54,6 +51,7 @@ class ProductController extends Controller
             }
             return $string;
         };
+
         // Truyền biến vào view
         $manager_book = view('admin.all_book')->with('all_book', $all_book)->with('limitWordsFunc', $limitWordsFunc);
         return view('admin_layout')->with('admin.all_book', $manager_book);
@@ -318,7 +316,7 @@ class ProductController extends Controller
         $nxb_by_id = DB::table('book')
             ->where('publisher', $nxb_name)
             ->where('status', 'active')
-            ->get();
+            ->paginate(6);
 
         return view('pages.nxb.show_nxb')
             ->with('nxb_book', $nxb_book)
@@ -854,5 +852,56 @@ class ProductController extends Controller
         }
 
         return redirect()->back()->with('message', 'Bạn không có quyền chỉnh sửa bình luận này');
+    }
+    // TÌM KIẾM SÁCH
+    public function search_book(Request $request)
+    {
+        $keywords = $request->input('query');
+
+        // Nếu không có từ khóa, trả về thông báo không tìm thấy
+        if (empty($keywords)) {
+            return redirect()->back()->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        // Tìm kiếm theo các tiêu chí
+        $search_product = DB::table('book')
+            ->join('author', 'author.author_id', '=', 'book.author_id')
+            ->join('category', 'category.category_id', '=', 'book.category_id')
+            ->join('supplier', 'supplier.supplier_id', '=', 'book.supplier_id')
+            ->select('book.*', 'author.author_name', 'category.category_name', 'supplier.supplier_name') // Chọn các cột từ các bảng join
+            ->where('book.book_name', 'like', '%' . $keywords . '%')
+            ->orWhere('book.isbn', 'like', '%' . $keywords . '%')
+            ->orWhere('book.publisher', 'like', '%' . $keywords . '%')
+            ->orWhere('book.tags', 'like', '%' . $keywords . '%')
+            ->orWhere('book.language', 'like', '%' . $keywords . '%')
+            ->orWhere('author.author_name', 'like', '%' . $keywords . '%')
+            ->orWhere('category.category_name', 'like', '%' . $keywords . '%')
+            ->orWhere('supplier.supplier_name', 'like', '%' . $keywords . '%')
+            ->get()
+            ->map(function ($book) {
+                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
+                return $book;
+            });
+
+        // Hàm giới hạn từ
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+
+        // Kiểm tra nếu không có sản phẩm nào tìm thấy
+        if ($search_product->isEmpty()) {
+            return view('admin.all_book')
+                ->with('all_book', collect()) // gửi danh sách rỗng nếu không tìm thấy sản phẩm nào
+                ->with('limitWordsFunc', $limitWordsFunc)
+                ->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        return view('admin.all_book')
+            ->with('all_book', $search_product)
+            ->with('limitWordsFunc', $limitWordsFunc);
     }
 }

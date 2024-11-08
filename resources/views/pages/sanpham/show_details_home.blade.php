@@ -132,16 +132,16 @@
                                         <p>{{ $review->comment }}</p>
                                         {{-- XÓA VÀ SỬA ĐÁNH GIÁ BÌNH LUẬN --}}
                                         @if (Session::get('user_id') == $review->user_id)
-                                            <form action="{{ URL::to('/delete-review/' . $review->review_id) }}" method="POST"
-                                                style="display: inline;">
+                                            <form action="{{ URL::to('/delete-review/' . $review->review_id) }}"
+                                                method="POST" style="display: inline;">
                                                 {{ csrf_field() }}
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-primary"
                                                     style="float: right; margin: -17px 25px; margin-right: 50px;">Xóa</button>
                                             </form>
 
-                                            <form action="{{ URL::to('/edit-review/' . $review->review_id) }}" method="GET"
-                                                style="display: inline;">
+                                            <form action="{{ URL::to('/edit-review/' . $review->review_id) }}"
+                                                method="GET" style="display: inline;">
                                                 {{ csrf_field() }}
                                                 <button type="submit" class="btn btn-primary"
                                                     style="float: right; margin: -17px">Sửa</button>
@@ -243,20 +243,33 @@
                                     <div class="product-image-wrapper">
                                         <div class="single-products">
                                             <div class="productinfo text-center">
-                                                <img src="{{ URL::to('public/uploads/product/' . $lienquan_home->image) }}"
-                                                    alt="" />
-                                                <h2>{{ $lienquan_home->formatted_price = number_format($lienquan_home->price, 0, ',', '.') }}
-                                                    VNĐ
-                                                </h2>
-                                                <p>{{ $limitWordsFunc($lienquan_home->book_name, 8) }}</p>
-                                                <a href="#" class="btn btn-default add-to-cart"><i
-                                                        class="fa fa-shopping-cart"></i>Thêm vào
-                                                    giỏ hàng</a>
+                                                <!-- Liên kết đến chi tiết sản phẩm khi nhấn vào hình ảnh -->
+                                                <a
+                                                    href="{{ URL::to('/chi-tiet-san-pham-theo-cate/' . $lienquan_home->book_id) }}">
+                                                    <img src="{{ URL::to('public/uploads/product/' . $lienquan_home->image) }}"
+                                                        alt="" />
+                                                </a>
+                                                <!-- Liên kết đến chi tiết sản phẩm khi nhấn vào tên sách -->
+                                                <h2>{{ number_format($lienquan_home->price, 0, ',', '.') }} VNĐ</h2>
+                                                <p><a
+                                                        href="{{ URL::to('/chi-tiet-san-pham-theo-cate/' . $lienquan_home->book_id) }}">{{ $limitWordsFunc($lienquan_home->book_name, 8) }}</a>
+                                                </p>
+                                                <!-- Form thêm vào giỏ hàng -->
+                                                <form action="{{ URL::to('/save-cart') }}" method="POST">
+                                                    {{ csrf_field() }}
+                                                    <input name="qty" type="hidden" value="1" />
+                                                    <input name="product_id_hidden" type="hidden"
+                                                        value="{{ $lienquan_home->book_id }}" />
+                                                    <button type="submit" class="btn btn-default add-to-cart">
+                                                        <i class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
+
                         </div>
                     </a>
                 </div>

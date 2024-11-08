@@ -243,17 +243,33 @@
                                 <div class="product-image-wrapper">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
-                                            <img src="{{ URL::to('public/uploads/product/' . $lienquan_nxb->image) }}"
-                                                alt="" />
+                                            <!-- Liên kết đến chi tiết sản phẩm khi nhấn vào hình ảnh -->
+                                            <a
+                                                href="{{ URL::to('/chi-tiet-san-pham-theo-nxb/' . $lienquan_nxb->book_id) }}">
+                                                <img src="{{ URL::to('public/uploads/product/' . $lienquan_nxb->image) }}"
+                                                    alt="" />
+                                            </a>
+                                            <!-- Liên kết đến chi tiết sản phẩm khi nhấn vào tên sách -->
                                             <h2>{{ number_format($lienquan_nxb->price, 0, ',', '.') }} VNĐ</h2>
-                                            <p>{{ $lienquan_nxb->book_name }}</p>
-                                            <a href="#" class="btn btn-default add-to-cart"><i
-                                                    class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng</a>
+                                            <p><a
+                                                    href="{{ URL::to('/chi-tiet-san-pham-theo-nxb/' . $lienquan_nxb->book_id) }}">{{ $lienquan_nxb->book_name }}</a>
+                                            </p>
+                                            <!-- Form thêm vào giỏ hàng -->
+                                            <form action="{{ URL::to('/save-cart') }}" method="POST">
+                                                {{ csrf_field() }}
+                                                <input name="qty" type="hidden" value="1" />
+                                                <input name="product_id_hidden" type="hidden"
+                                                    value="{{ $lienquan_nxb->book_id }}" />
+                                                <button type="submit" class="btn btn-default add-to-cart">
+                                                    <i class="fa fa-shopping-cart"></i>Thêm vào giỏ hàng
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
+
                     </div>
                 </div>
                 <a class="left recommended-item-control" href="#recommended-item-carousel" data-slide="prev">

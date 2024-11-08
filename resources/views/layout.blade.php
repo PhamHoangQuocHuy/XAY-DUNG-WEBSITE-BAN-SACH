@@ -46,11 +46,12 @@
                     <div class="col-sm-6">
                         <div class="social-icons pull-right">
                             <ul class="nav navbar-nav">
-                                <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                                <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="https://www.facebook.com/profile.php?id=100009328375081&mibextid=ZbWKwL"><i
+                                            class="fa fa-facebook"></i></a></li>
+                                {{-- <li><a href="#"><i class="fa fa-twitter"></i></a></li>
                                 <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
                                 <li><a href="#"><i class="fa fa-dribbble"></i></a></li>
-                                <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
+                                <li><a href=""><i class="fa fa-google-plus"></i></a></li> --}}
                             </ul>
                         </div>
                     </div>
@@ -96,9 +97,46 @@
                                 $user_id = Session::get('user_id');
                                 if($user_id!=NULL){
                                 ?>
-                                <li><a href="#"><i class="fa fa-user"></i>
-                                        {{ Session::get('username') }}
-                                    </a></li>
+
+                                <li class="dropdown ">
+                                    <a href="#" style="font-size:20px;font-weight: bold;color: blue "><i
+                                            class="fa fa-user"></i> {{ Session::get('username') }}<i
+                                            class="fa fa-angle-down"></i></a>
+                                    <ul role="menu" class="sub-menu">
+                                        <li>
+                                            <!-- Thông tin -->
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading"
+                                                    style="background-color: rgba(0, 0, 0, 0.6);">
+                                                    <h4 class="panel-title">
+                                                        <a class="hover-effect"
+                                                            style="font-size: 12px; font-weight: bold;background-color: rgb(108 99 99 / 60%);"
+                                                            href="{{ url('/user-info/' . Session::get('user_id')) }}">
+                                                            <i class="fa fa-info-circle" style="color: #FFD43B;"></i>
+                                                            Thông tin tài khoản
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                            </div>
+
+                                            <!-- Đơn hàng đã mua -->
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading"
+                                                    style="background-color: rgba(0, 0, 0, 0.6);">
+                                                    <h4 class="panel-title">
+                                                        <a class="hover-effect"
+                                                            style="font-size: 12px; font-weight: bold;background-color: rgb(108 99 99 / 60%);"
+                                                            href="{{ url('/user-orders') }}">
+                                                            <i class="fa fa-shopping-bag" style="color: #FFD43B;"></i>
+                                                            Đơn hàng đã mua
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+
                                 <?php
                                 }else {
                                 ?>
@@ -108,7 +146,7 @@
                                 ?>
 
 
-                                <li><a href="#"><i class="fa fa-star"></i> DANH SÁCH YÊU THÍCH</a></li>
+                                {{-- <li><a href="#"><i class="fa fa-star"></i> DANH SÁCH YÊU THÍCH</a></li> --}}
 
                                 {{-- THANH TOÁN --}}
                                 <?php
@@ -139,7 +177,8 @@
                                     <?php
                                 }else {
                                 ?>
-                                <li><a href="{{ URL::to('/login-checkout') }}"><i class="fa fa-lock"></i> ĐĂNG NHẬP</a>
+                                <li><a href="{{ URL::to('/login-checkout') }}"><i class="fa fa-lock"></i> ĐĂNG
+                                        NHẬP</a>
                                     <?php
                                     }
                                 ?>
@@ -167,8 +206,9 @@
                             </button>
                         </div>
                         <div class="mainmenu pull-left">
-                            <ul class="nav navbar-nav collapse navbar-collapse" >
-                                <li><a href="{{ URL::to('/trang-chu') }}" class="active" style="padding-left: 50px;">TRANG CHỦ</a></li>
+                            <ul class="nav navbar-nav collapse navbar-collapse">
+                                <li><a href="{{ URL::to('/trang-chu') }}" class="active"
+                                        style="padding-left: 50px;">TRANG CHỦ</a></li>
                                 <li class="dropdown"><a href="#">DANH MỤC SÁCH<i
                                             class="fa fa-angle-down"></i></a>
                                     <ul role="menu" class="sub-menu">
@@ -201,7 +241,7 @@
                             {{ csrf_field() }}
                             <div class="search_box pull-right">
                                 <input type="text" name="keywords_submit" style="border: solid"
-                                    placeholder="Tìm kiếm sản phẩm" autocomplete="off"/>
+                                    placeholder="Tìm kiếm sản phẩm" autocomplete="off" />
                                 <input type="submit" class="btn btn-primary btn-sm"
                                     style="margin-top: 0px;color: black;margin-left: -4px;padding-right: 15px;margin-right: 30px;"
                                     value="Tìm kiếm" name="search_items">
@@ -232,9 +272,6 @@
                                 <div class="col-sm-6">
                                     <h1><span>BOOK.VN</span></h1>
                                     <h2>SALE ALL KIND OF BOOK ON THE WORLD</h2>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                                        incididunt ut labore et dolore magna aliqua. </p>
-                                    <button type="button" class="btn btn-default get">MUA NGAY</button>
                                 </div>
                                 <div class="col-sm-6">
                                     <img src="{{ asset('public/frontend/images/slide1.jpg') }}"
@@ -244,10 +281,7 @@
                             <div class="item">
                                 <div class="col-sm-6">
                                     <h1><span>BOOK.VN</span></h1>
-                                    <h2>100% Responsive Design</h2>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                                        incididunt ut labore et dolore magna aliqua. </p>
-                                    <button type="button" class="btn btn-default get">MUA NGAY</button>
+                                    <h2>100% NEW BOOK</h2>
                                 </div>
                                 <div class="col-sm-6">
                                     <img src="{{ asset('public/frontend/images/slide2.jpg') }}"
@@ -258,10 +292,7 @@
                             <div class="item">
                                 <div class="col-sm-6">
                                     <h1><span>BOOK.VN</span></h1>
-                                    <h2>Free Ecommerce Template</h2>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                                        incididunt ut labore et dolore magna aliqua. </p>
-                                    <button type="button" class="btn btn-default get">MUA NGAY</button>
+                                    <h2>Free Delivery</h2>
                                 </div>
                                 <div class="col-sm-6">
                                     <img src="{{ asset('public/frontend/images/slide3.jpg') }}"
@@ -437,6 +468,12 @@
                 </div>
             </div>
         </div>
+        {{-- TÍCH HỢP AI CHAT BOX --}}
+        <div class="chat-icon" onclick="toggleChatBox()"></div>
+        <div class="chat-box"> <!-- Chatbot widget --> <iframe allow="microphone;" width="350" height="430"
+                src="https://console.dialogflow.com/api-client/demo/embedded/f27a1e4b-b1e5-4324-8e81-04981f4fa0c6">
+            </iframe>
+        </div>
 
         <div class="footer-bottom">
             <div class="container">
@@ -462,3 +499,40 @@
 </body>
 
 </html>
+<script>
+    function toggleChatBox() {
+        var chatBox = document.querySelector('.chat-box');
+        if (chatBox.style.display === 'none' || chatBox.style.display === '') {
+            chatBox.style.display = 'block';
+        } else {
+            chatBox.style.display = 'none';
+        }
+    }
+</script>
+<style>
+    .chat-icon {
+        position: fixed;
+        bottom: 500px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: url('{{ asset('public/frontend/images/chat-icon.avif') }}') no-repeat center center;
+        border-radius: 50px;
+        border: solid 2px black;
+        background-size: cover;
+        cursor: pointer;
+        z-index: 1000;
+    }
+
+    .chat-box {
+        display: none;
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 350px;
+        height: 430px;
+        z-index: 1000;
+        border: 1px solid #ccc;
+        background-color: #fff;
+    }
+</style>

@@ -30,7 +30,7 @@ class CategoryProduct extends Controller
     public function all_category()
     {
         $this->AuthLogin();
-        $all_category = DB::table('category')->get();
+        $all_category = DB::table('category')->select('category.*')->paginate(4);
         $manager_category = view('admin.all_category')->with('all_category', $all_category);
         return view('admin_layout')->with('admin.all_category', $manager_category);
     }
@@ -135,7 +135,6 @@ class CategoryProduct extends Controller
     //End Function Admin Page
     public function show_category_home($category_id)
     {
-        $this->AuthLogin();
 
         $category_book = DB::table('category')
             ->where('status', 'active')
@@ -179,7 +178,7 @@ class CategoryProduct extends Controller
             ->join('category', 'book.category_id', '=', 'category.category_id')
             ->where('book.category_id', $category_id)
             ->where('book.status', 'active')
-            ->get();
+            ->paginate(6);
 
         return view('pages.category.show_category')
             ->with('category', $category_book)
@@ -189,5 +188,31 @@ class CategoryProduct extends Controller
             ->with('tacgia_book', $tacgia_book) // tác giả
             ->with('all_book', $all_book) // sách
             ->with('limitWordsFunc', $limitWordsFunc);
+    }
+    // TÌM KIẾM THỂ LOẠI
+    public function search_category(Request $request)
+    {
+        $keywords = $request->input('query');
+
+        // Nếu không có từ khóa, trả về thông báo không tìm thấy
+        if (empty($keywords)) {
+            return redirect()->back()->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        // Tìm kiếm theo category_name trong bảng category
+        $search_category = DB::table('category')
+            ->select('category.*')
+            ->where('category_name', 'like', '%' . $keywords . '%')
+            ->get();
+
+        // Kiểm tra nếu không có kết quả nào tìm thấy
+        if ($search_category->isEmpty()) {
+            return view('admin.all_category')
+                ->with('all_category', collect()) // gửi danh sách rỗng nếu không tìm thấy kết quả nào
+                ->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        return view('admin.all_category')
+            ->with('all_category', $search_category);
     }
 }

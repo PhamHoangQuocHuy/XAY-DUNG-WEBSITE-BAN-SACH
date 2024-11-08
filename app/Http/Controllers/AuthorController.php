@@ -29,7 +29,7 @@ class AuthorController extends Controller
     public function all_author()
     {
         $this->AuthLogin();
-        $all_author = DB::table('author')->get();
+        $all_author = DB::table('author')->paginate(4);
         $manager_author = view('admin.all_author')->with('all_author', $all_author);
         return view('admin_layout')->with('admin.all_author', $manager_author);
     }
@@ -113,7 +113,6 @@ class AuthorController extends Controller
     //END FUNCTION ADMIN PAGE
     public function show_author_home($author_id)
     {
-        $this->AuthLogin();
         $tacgia_book = DB::table('author')
             ->orderBy('author_id', 'asc')
             ->get();
@@ -148,9 +147,9 @@ class AuthorController extends Controller
             ->join('author', 'book.author_id', '=', 'author.author_id')
             ->where('book.author_id', $author_id)
             ->where('book.status', 'active')
-            ->get();
+            ->paginate(6);
 
-        
+
 
         return view('pages.author.show_author')
             ->with('tacgia_book', $tacgia_book)
@@ -159,5 +158,31 @@ class AuthorController extends Controller
             ->with('all_book', $all_book) // sách
             ->with('publisher_list', $publisher_list) //nxb
             ->with('category', $category_book); // thể loại
+    }
+    // TÌM KIẾM TÁC GIẢ
+    public function search_author(Request $request)
+    {
+        $keywords = $request->input('query');
+
+        // Nếu không có từ khóa, trả về thông báo không tìm thấy
+        if (empty($keywords)) {
+            return redirect()->back()->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        // Tìm kiếm theo author_name trong bảng author
+        $search_author = DB::table('author')
+            ->select('author_id', 'author_name') // Chọn các cột từ bảng author
+            ->where('author_name', 'like', '%' . $keywords . '%')
+            ->get();
+
+        // Kiểm tra nếu không có kết quả nào tìm thấy
+        if ($search_author->isEmpty()) {
+            return view('admin.all_author')
+                ->with('all_author', collect()) // gửi danh sách rỗng nếu không tìm thấy kết quả nào
+                ->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        return view('admin.all_author')
+            ->with('all_author', $search_author);
     }
 }

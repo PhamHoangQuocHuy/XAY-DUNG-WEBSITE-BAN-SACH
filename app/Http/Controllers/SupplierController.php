@@ -30,7 +30,7 @@ class SupplierController extends Controller
     public function all_supplier()
     {
         $this->AuthLogin();
-        $all_supplier = DB::table('supplier')->get();
+        $all_supplier = DB::table('supplier')->select('supplier.*')->paginate(4);
         $manager_supplier = view('admin.all_supplier')->with('all_supplier', $all_supplier);
         return view('admin_layout')->with('admin.all_supplier', $manager_supplier);
     }
@@ -126,5 +126,34 @@ class SupplierController extends Controller
         DB::table('supplier')->where('supplier_id', $sup_id)->delete();
         Session::put('message', 'Xóa nhà cung cấp thành công');
         return Redirect::to('/all-supplier');
+    }
+    // TÌM KIẾM NHÀ CUNG CẤP
+    public function search_supplier(Request $request)
+    {
+        $keywords = $request->input('query');
+
+        // Nếu không có từ khóa, trả về thông báo không tìm thấy
+        if (empty($keywords)) {
+            return redirect()->back()->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        // Tìm kiếm theo các trường trong bảng supplier
+        $search_supplier = DB::table('supplier')
+            ->select('supplier_id', 'supplier_name', 'supplier_address', 'supplier_phone', 'supplier_email', 'status')
+            ->where('supplier_name', 'like', '%' . $keywords . '%')
+            ->orWhere('supplier_address', 'like', '%' . $keywords . '%')
+            ->orWhere('supplier_phone', 'like', '%' . $keywords . '%')
+            ->orWhere('supplier_email', 'like', '%' . $keywords . '%')
+            ->get();
+
+        // Kiểm tra nếu không có kết quả nào tìm thấy
+        if ($search_supplier->isEmpty()) {
+            return view('admin.all_supplier')
+                ->with('all_supplier', collect()) // gửi danh sách rỗng nếu không tìm thấy kết quả nào
+                ->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        return view('admin.all_supplier')
+            ->with('all_supplier', $search_supplier);
     }
 }

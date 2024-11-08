@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Redirect;
 class HomeController extends Controller
 {
     
-    public function index()
+    public function index() // Hiển thị book ở trang home giới hạn 6
     {
         $category_book = DB::table('category')
             ->where('status', 'active')
@@ -28,8 +28,7 @@ class HomeController extends Controller
         $all_book = DB::table('book')
             ->where('status', 'active')
             ->orderBy('book.book_id', 'asc')
-            ->limit(6)
-            ->get();
+            ->paginate(6);
 
         // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
         $all_publishers = DB::table('book')
@@ -47,9 +46,6 @@ class HomeController extends Controller
             }
             return $string;
         };
-
-
-
         return view('pages.home')
             ->with('category', $category_book)
             ->with('tacgia_book', $tacgia_book)
@@ -164,7 +160,7 @@ class HomeController extends Controller
     }
 
     // HÀM TÌM KIẾM SẢN PHẨM
-    public function search(Request $request)
+    public function search_book(Request $request)
     {
         $keywords = $request->keywords_submit;
 
