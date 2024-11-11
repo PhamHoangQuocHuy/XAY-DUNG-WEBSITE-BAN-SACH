@@ -126,8 +126,9 @@
                                                     <h4 class="panel-title">
                                                         <a class="hover-effect"
                                                             style="font-size: 12px; font-weight: bold;background-color: rgb(108 99 99 / 60%);"
-                                                            href="{{ url('/user-orders') }}">
-                                                            <i class="fa fa-shopping-bag" style="color: #FFD43B;"></i>
+                                                            href="{{ url('/user-orders-history/'.Session::get('user_id')) }}">
+                                                            <i class="fa-solid fa-clock-rotate-left"
+                                                                style="color: #FFD43B;"></i>
                                                             Đơn hàng đã mua
                                                         </a>
                                                     </h4>

@@ -173,7 +173,7 @@ class AuthorController extends Controller
         $search_author = DB::table('author')
             ->select('author_id', 'author_name') // Chọn các cột từ bảng author
             ->where('author_name', 'like', '%' . $keywords . '%')
-            ->get();
+            ->paginate(5);
 
         // Kiểm tra nếu không có kết quả nào tìm thấy
         if ($search_author->isEmpty()) {

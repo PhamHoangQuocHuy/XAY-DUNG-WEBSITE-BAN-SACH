@@ -877,11 +877,7 @@ class ProductController extends Controller
             ->orWhere('author.author_name', 'like', '%' . $keywords . '%')
             ->orWhere('category.category_name', 'like', '%' . $keywords . '%')
             ->orWhere('supplier.supplier_name', 'like', '%' . $keywords . '%')
-            ->get()
-            ->map(function ($book) {
-                $book->formatted_price = number_format($book->price, 0, ',', '.'); // Định dạng khi hiển thị
-                return $book;
-            });
+            ->paginate(5);
 
         // Hàm giới hạn từ
         $limitWordsFunc = function ($string, $word_limit) {

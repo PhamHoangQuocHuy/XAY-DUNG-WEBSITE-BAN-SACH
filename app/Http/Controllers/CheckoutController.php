@@ -8,11 +8,12 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Gloudemans\Shoppingcart\Facades\Cart;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash; // Thư viện mã hóa mật khẩu
 use Carbon\Carbon; // thư viện hỗ trợ định dạng thời gian
 
 class CheckoutController extends Controller
-{ 
+{
     public function login_checkout()
     {
         $category_book = DB::table('category')
@@ -215,8 +216,6 @@ class CheckoutController extends Controller
     // ĐẶT HÀNG VÀ THANH TOÁN
     public function order_place(Request $request)
     {
-        
-
         // INSERT PAYMENT_METHOD
         $data = array();
         $data['payment_method'] = $request->payment_option;
@@ -255,6 +254,29 @@ class CheckoutController extends Controller
             $order_details_data['book_price'] = $value->price; // lấy từ price package
             DB::table('order_details')->insert($order_details_data);
         }
+        // Lấy thông tin vận chuyển 
+        $shipping_info = DB::table('shipping')->where('shipping_id', $shipping_id)->first();
+        $email_data = [
+            'name' => $shipping_info->shipping_name,
+            'address' => $shipping_info->shipping_address,
+            'phone' => $shipping_info->shipping_phone,
+            'email' => $shipping_info->shipping_email,
+            'notes' => $shipping_info->shipping_notes,
+            'order_code' => $order_data['code_order'],
+            'order_total' => $order_data['order_total'],
+            'order_details' => $content,
+            'payment_method' => $data['payment_method'],
+            'shipping_info' => $shipping_info
+        ];
+
+        $current_time = Carbon::now()->format('d/m/Y H:i:s');
+        $subject = "Đơn đặt mua hàng đã được xác nhận vào lúc $current_time";
+
+        Mail::send('pages.emails.order_notification', $email_data, function ($message) use ($email_data, $subject) {
+            $message->to($email_data['email'], $email_data['name'])->subject($subject);
+        });
+
+
         if ($data['payment_method'] === 'Banking') {
             echo 'Banking';
         } else {
@@ -266,21 +288,18 @@ class CheckoutController extends Controller
             $tacgia_book = DB::table('author')
                 ->orderBy('author_id', 'asc')
                 ->get();
-            // lấy sản phẩm ở trang chủ
             $all_book = DB::table('book')
                 ->where('status', 'active')
                 ->orderBy('book.book_id', 'asc')
                 ->limit(6)
                 ->get();
 
-            // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
             $all_publishers = DB::table('book')
                 ->select('publisher', 'book_id')
                 ->where('status', 'active')
                 ->orderBy('publisher', 'desc')
                 ->limit(4) // lấy 4 nxb
                 ->get();
-            // Loại bỏ nhà xuất bản trùng lặp
             $publisher_list = $all_publishers->unique('publisher')->values();
             $limitWordsFunc = function ($string, $word_limit) {
                 $words = explode(' ', $string);
@@ -359,7 +378,7 @@ class CheckoutController extends Controller
     }
     public function edit_shipping()
     {
-        
+
 
         $category_book = DB::table('category')
             ->where('status', 'active')
@@ -405,7 +424,7 @@ class CheckoutController extends Controller
 
     public function update_shipping(Request $request)
     {
-       
+
 
         $data = $request->validate([
             'shipping_email' => 'required|email',

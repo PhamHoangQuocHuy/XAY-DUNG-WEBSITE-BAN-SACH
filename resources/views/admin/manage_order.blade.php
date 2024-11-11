@@ -62,8 +62,16 @@
                                 </td>
                                 <td style="text-align: center;align-content: center; color: black">{{ $order->order_date }}
                                 </td>
-                                <td style="text-align: center;align-content: center; color: black">
-                                    {{ $order->order_status }}</td>
+                                <td style="text-align: center; align-content: center;">
+                                    @if ($order->order_status == 'Processing')
+                                        <span style="color: green;font-size:15px;font-weight: bold ">Đơn mới</span>
+                                    @elseif($order->order_status == 'Delivered')
+                                        <span style="color: blue;font-size:15px;font-weight: bold ">Đã xử lý</span>
+                                    @elseif($order->order_status == 'Cancelled')
+                                        <span style="color: red;font-size:15px;font-weight: bold ">Đã hủy</span>
+                                    @endif
+                                </td>
+
                                 <td style="text-align: center; align-content: center;">
                                     <a href="{{ URL::to('view-order/' . $order->order_id) }}" class="active"
                                         ui-toggle-class="">

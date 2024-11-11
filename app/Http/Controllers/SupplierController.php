@@ -144,7 +144,7 @@ class SupplierController extends Controller
             ->orWhere('supplier_address', 'like', '%' . $keywords . '%')
             ->orWhere('supplier_phone', 'like', '%' . $keywords . '%')
             ->orWhere('supplier_email', 'like', '%' . $keywords . '%')
-            ->get();
+            ->paginate(5);
 
         // Kiểm tra nếu không có kết quả nào tìm thấy
         if ($search_supplier->isEmpty()) {

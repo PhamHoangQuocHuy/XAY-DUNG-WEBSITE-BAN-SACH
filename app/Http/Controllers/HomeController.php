@@ -160,7 +160,7 @@ class HomeController extends Controller
     }
 
     // HÀM TÌM KIẾM SẢN PHẨM
-    public function search_book(Request $request)
+    public function search(Request $request)
     {
         $keywords = $request->keywords_submit;
 
@@ -220,7 +220,7 @@ class HomeController extends Controller
                     ->whereRaw('category.category_id = book.category_id')
                     ->where('category.category_name', 'like', '%' . $keywords . '%'); // Tìm theo thể loại
             })
-            ->get();
+            ->paginate(5);
 
         // Kiểm tra nếu không có sản phẩm nào tìm thấy
         if ($search_product->isEmpty()) {

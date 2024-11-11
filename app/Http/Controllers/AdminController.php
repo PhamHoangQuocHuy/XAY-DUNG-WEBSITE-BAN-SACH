@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use PhpParser\Node\Stmt\Return_;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+
 use Carbon\Carbon;
 
 session_start();
@@ -77,7 +78,7 @@ class AdminController extends Controller
     {
 
         $all_order = DB::table('orders')
-            ->join('user', 'user.user_id', '=', 'orders.order_id')
+            ->join('user', 'user.user_id', '=', 'orders.user_id')
             ->select('orders.*', 'user.username')
             ->orderBy('orders.order_id', 'asc')
             ->paginate(5);
@@ -391,14 +392,12 @@ class AdminController extends Controller
             ->orderBy('author_id', 'asc')
             ->get(); // thêm biến tacgia_book
 
-        // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
         $all_publishers = DB::table('book')
             ->select('publisher', 'book_id')
             ->where('status', 'active')
             ->orderBy('publisher', 'desc')
             ->limit(4) // lấy 4 nxb
             ->get();
-        // Loại bỏ nhà xuất bản trùng lặp
         $publisher_list = $all_publishers->unique('publisher')->values();
         $all_book = DB::table('book')
             ->where('status', 'active')
@@ -413,7 +412,6 @@ class AdminController extends Controller
             return $string;
         };
 
-        // Lấy thông tin người dùng từ cơ sở dữ liệu 
         $user = DB::table('user')->where('user_id', $user_id)->first();
         if (!$user) {
             return redirect('/')->withErrors(['user' => 'Người dùng không tồn tại.']);
@@ -488,7 +486,7 @@ class AdminController extends Controller
             ->select('orders.*', 'user.username') // Chọn các cột từ bảng orders và user
             ->where('user.username', 'like', '%' . $keywords . '%')
             ->orWhere('orders.code_order', 'like', '%' . $keywords . '%')
-            ->get();
+            ->paginate(5);
 
         // Kiểm tra nếu không có kết quả nào tìm thấy
         if ($search_order->isEmpty()) {
@@ -518,7 +516,7 @@ class AdminController extends Controller
             ->orWhere('address', 'like', '%' . $keywords . '%')
             ->orWhere('email', 'like', '%' . $keywords . '%')
             ->orWhere('phone', 'like', '%' . $keywords . '%')
-            ->get();
+            ->paginate(5);
 
         // Kiểm tra nếu không có kết quả nào tìm thấy
         if ($search_user->isEmpty()) {
@@ -530,4 +528,172 @@ class AdminController extends Controller
         return view('admin.manage_user')
             ->with('all_user', $search_user);
     }
+
+    // CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
+    public function update_order_status(Request $request, $order_id)
+    {
+        // Tìm đơn hàng theo id
+        $order = DB::table('orders')->where('order_id', $order_id)->first();
+        // Kiểm tra trạng thái hiện tại của đơn hàng 
+        if ($order->order_status != 'Processing') {
+            return redirect()->back()->with('error', 'Chỉ có thể thay đổi trạng thái từ Đơn mới.');
+        }
+        // Cập nhật trạng thái đơn hàng
+        DB::table('orders')->where('order_id', $order_id)->update(['order_status' => $request->order_status]);
+
+        // Lấy thông tin người đặt hàng 
+        $shipping_info = DB::table('shipping')
+            ->where('shipping_id', $order->shipping_id)
+            ->first();
+        $email_data = [
+            'name' => $shipping_info->shipping_name,
+            'address' => $shipping_info->shipping_address,
+            'phone' => $shipping_info->shipping_phone,
+            'email' => $shipping_info->shipping_email,
+            'notes' => $shipping_info->shipping_notes,
+            'order_code' => $order->code_order,
+            'order_total' => $order->order_total,
+            'order_details' => DB::table('order_details')->where('order_id', $order_id)->get(),
+            'payment_method' => DB::table('payment')
+                ->where('payment_id', $order->payment_id)
+                ->value('payment_method'),
+            'shipping_info' => $shipping_info
+        ];
+        $subject = "Thư thông báo về trạng thái đơn hàng với mã đơn hàng là: " . $order->code_order;
+        // Chọn template email dựa trên trạng thái đơn hàng 
+        if ($request->order_status == 'Delivered') {
+            $template = 'pages.emails.order_delivered_notification';
+        } elseif ($request->order_status == 'Cancelled') {
+            $template = 'pages.emails.order_canceled_notification';
+        } else {
+            return redirect()->back()->with('error', 'Trạng thái không hợp lệ.');
+        }
+        // Gửi email thông báo 
+        Mail::send($template, $email_data, function ($message) use ($email_data, $subject) {
+            $message->to($email_data['email'], $email_data['name'])->subject($subject);
+        });
+        return redirect()->back()->with('success', 'Đã cập nhật trạng thái đơn hàng và gửi email thông báo.');
+    }
+    // XEM LỊCH SỬ ĐƠN HÀNG ĐÃ MUA
+    public function user_orders_history($user_id)
+    {
+        if (!Session::has('user_id')) {
+            return redirect('/login-checkout')->with('error', 'Bạn cần đăng nhập để xem lịch sử đơn hàng.');
+        }
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get(); // thêm biến tacgia_book
+
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        $publisher_list = $all_publishers->unique('publisher')->values();
+        $all_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+
+        // Lấy tất cả các đơn hàng của user_id 
+        $orders = DB::table('orders')
+            ->where('user_id', $user_id)
+            ->get();
+        // Truyền dữ liệu đơn hàng sang view 
+        return view('pages.user.history', [
+            'orders' => $orders,
+            'category' => $category_book,
+            'publisher_list' => $publisher_list,
+            'tacgia_book' => $tacgia_book,
+            'all_book' => $all_book,
+            'limitWordsFunc' => $limitWordsFunc,
+        ]);
+    }
+    public function history_order_details($order_id)
+    {
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
+
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get(); // thêm biến tacgia_book
+
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4) // lấy 4 nxb
+            ->get();
+        $publisher_list = $all_publishers->unique('publisher')->values();
+        $all_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+        // Lấy thông tin đơn hàng 
+        $order = DB::table('orders')
+            ->where('order_id', $order_id)
+            ->first();
+        // Lấy thông tin chi tiết đơn hàng 
+        $order_details = DB::table('order_details')
+            ->where('order_id', $order_id)
+            ->get();
+        // Lấy thông tin vận chuyển 
+        $shipping_info = DB::table('shipping')
+            ->where('shipping_id', $order->shipping_id)
+            ->first();
+
+        return view('pages.user.history_order_details', [
+            'order' => $order,
+            'order_details' => $order_details,
+            'shipping_info' => $shipping_info,
+            'category' => $category_book,
+            'publisher_list' => $publisher_list,
+            'tacgia_book' => $tacgia_book,
+            'all_book' => $all_book,
+            'limitWordsFunc' => $limitWordsFunc,
+        ]);
+    }
+    // HỦY ĐƠN HÀNG TỪ PHÍA KHÁCH HÀNG
+    public function cancel_order(Request $request, $order_id)
+    {
+        // Tìm đơn hàng theo id 
+        $order = DB::table('orders')
+            ->where('order_id', $order_id)
+            ->first();
+        // Kiểm tra nếu đơn hàng không phải là 'Đơn mới' 
+        if ($order->order_status != 'Processing') {
+            return redirect()->back()->with('error', 'Chỉ có thể hủy đơn hàng với trạng thái Đơn mới.');
+        }
+        // Cập nhật trạng thái đơn hàng thành 'Cancelled' 
+        DB::table('orders')
+            ->where('order_id', $order_id)
+            ->update(['order_status' => 'Cancelled']);
+        return redirect()->back()->with('success', 'Đã hủy đơn hàng thành công.');
+    }
+    // TRẢ HÀNG TỪ PHÍA KHÁCH HÀNG 
+
 }

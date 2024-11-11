@@ -108,7 +108,8 @@
                             thanh toán</label>
                     </span>
                     <span>
-                        <input type="submit" value="ĐẶT HÀNG" name="send_order_place" class="btn btn-primary btn-sm">
+                        <input type="submit" onclick="return confirm('Xác nhận đặt hàng ?')" value="ĐẶT HÀNG"
+                            name="send_order_place" class="btn btn-primary btn-sm">
                     </span>
                 </div>
             </form>

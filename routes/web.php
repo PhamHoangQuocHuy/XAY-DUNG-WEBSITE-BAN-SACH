@@ -20,6 +20,7 @@ Route::get('/', [HomeController::class, 'index']);
 Route::get('/trang-chu', [HomeController::class, 'index']);
 Route::post('/tim-kiem', [HomeController::class, 'search']);
 
+
 // Danh mục sách trang chủ
 Route::get('/danh-muc-sach/{category_id}', [CategoryProduct::class, 'show_category_home']);
 Route::get('/danh-muc-tac-gia/{author_id}', [AuthorController::class, 'show_author_home']);
@@ -38,7 +39,9 @@ Route::get('/logout', [AdminController::class, 'logout']);
 // ADMIN -> ORDER
 Route::get('/manage-order', [AdminController::class, 'manage_order']);
 Route::get('/view-order/{order_id}', [AdminController::class, 'view_order']);
-Route::get('/delete-order/{order_id}', [CartController::class, 'delete_order']);
+Route::get('/delete-order/{order_id}', [AdminController::class, 'delete_order']);
+Route::post('/update-order-status/{order_id}', [AdminController::class, 'update_order_status']);
+
 
 // ADMIN -> ACCOUNT
 Route::get('/manage-user', [AdminController::class, 'manage_user']);
@@ -131,6 +134,12 @@ Route::post('/reset-password', [AdminController::class, 'resetPassword']);
 // THAY ĐỔI THÔNG TIN TÀI KHOẢN NGƯỜI DÙNG
 Route::get('/user-info/{user_id}', [AdminController::class, 'showUserInfo']);
 Route::put('/user-info/{user_id}', [AdminController::class, 'updateUserInfo']);
+// XEM LỊCH SỬ ĐƠN HÀNG ĐÃ MUA
+Route::get('/user-orders-history/{user_id}', [AdminController::class, 'user_orders_history']);
+Route::get('/history-order-details/{order_id}', [AdminController::class, 'history_order_details']);
+Route::post('/cancel-order/{order_id}', [AdminController::class, 'cancel_order']);
+//Route::post('/return-order/{order_id}', [AdminController::class, 'return_order']);
+
 
 // TÌM SẢN TRONG ADMIN
 Route::get('/search-book', [ProductController::class, 'search_book']);

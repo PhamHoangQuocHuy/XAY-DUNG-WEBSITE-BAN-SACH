@@ -203,7 +203,7 @@ class CategoryProduct extends Controller
         $search_category = DB::table('category')
             ->select('category.*')
             ->where('category_name', 'like', '%' . $keywords . '%')
-            ->get();
+            ->paginate(5);
 
         // Kiểm tra nếu không có kết quả nào tìm thấy
         if ($search_category->isEmpty()) {
