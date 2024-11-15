@@ -134,6 +134,7 @@ Route::post('/reset-password', [AdminController::class, 'resetPassword']);
 // THAY ĐỔI THÔNG TIN TÀI KHOẢN NGƯỜI DÙNG
 Route::get('/user-info/{user_id}', [AdminController::class, 'showUserInfo']);
 Route::put('/user-info/{user_id}', [AdminController::class, 'updateUserInfo']);
+
 // XEM LỊCH SỬ ĐƠN HÀNG ĐÃ MUA
 Route::get('/user-orders-history/{user_id}', [AdminController::class, 'user_orders_history']);
 Route::get('/history-order-details/{order_id}', [AdminController::class, 'history_order_details']);
@@ -148,6 +149,29 @@ Route::get('/search-supplier', [SupplierController::class, 'search_supplier']);
 Route::get('/search-author', [AuthorController::class, 'search_author']);
 Route::get('/search-order', [AdminController::class, 'search_order']);
 Route::get('/search-user', [AdminController::class, 'search_user']);
+Route::get('/search-coupon', [AdminController::class, 'search_coupon']);
+
+// BANKING
+Route::post('/vnpay-payment', [CheckoutController::class, 'vnpay_payment']);
+Route::get('/pages/checkout/VNPAY', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
+
+//Xóa tất cả theo checkbox
+Route::post('/delete-selected-suppliers', [SupplierController::class, 'deleteSelectedSuppliers']);
+Route::post('/delete-selected-categories', [CategoryProduct::class, 'deleteSelectedCategories']);
+
+// COUPONS
+Route::get('/show-coupons', [AdminController::class, 'show_coupons']);
+Route::get('/add-coupon', [AdminController::class, 'add_coupon']);
+Route::get('/all-coupon', [AdminController::class, 'all_coupon']);
+Route::get('/active-coupon/{coupon_id}', [AdminController::class, 'active_coupon']);
+Route::get('/inactive-coupon/{coupon_id}', [AdminController::class, 'inactive_coupon']);
+Route::get('/delete-coupon/{coupon_id}', [AdminController::class, 'delete_coupon']);
+Route::get('/edit-coupon/{coupon_id}', [AdminController::class, 'edit_coupon']);
+
+Route::post('/update-coupon/{coupon_id}', [AdminController::class, 'update_coupon']);
+Route::post('/save-coupon', [AdminController::class, 'save_coupon']);
+Route::post('/apply-coupon', [AdminController::class, 'apply_coupon']);
+
 
 // laravel 8 trở lên phải sử dụng [Controller::class, 'method'] theo cú pháp array-based
 // Gọi tên controller rồi đến hàm của controller đó

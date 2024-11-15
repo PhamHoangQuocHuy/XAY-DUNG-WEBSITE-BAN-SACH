@@ -8,6 +8,17 @@
                     <li class="active">GIỎ HÀNG</li>
                 </ol>
             </div>
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
             <div class="table-responsive cart_info">
                 <?php $content = Cart::content(); ?>
                 <table class="table table-condensed">
@@ -17,6 +28,7 @@
                             <td class="description">MÔ TẢ</td>
                             <td class="price">GIÁ </td>
                             <td class="quantity">SỐ LƯỢNG</td>
+                            <td class="price">GIẢM GIÁ</td>
                             <td class="total">TỔNG TIỀN</td>
                             <td>THAO TÁC</td>
                         </tr>
@@ -49,6 +61,10 @@
                                         </form>
                                     </div>
                                 </td>
+                                <td>
+                                    <?php $coupon = Session::get('coupon'); ?>
+                                    {{ $coupon ? $coupon['discount'] : '0' }}%
+                                </td>
                                 <td class="cart_total">
                                     <p class="cart_total_price">
                                         {{ number_format($value_content->price * $value_content->qty, 0, ',', '.') }} VNĐ
@@ -70,14 +86,36 @@
     <section id="do_action">
         <div class="container">
             <div class="row">
+                {{-- Textbox và nút áp dụng coupon --}}
+                <div class="apply-coupon" style="margin: 20px 0; max-width: 300px;">
+                    <h4 style="font-weight: bold; margin: 20px 0; font-size: 20px;">ÁP DỤNG COUPON</h4>
+                    <form id="apply-coupon-form" action="{{ URL::to('/apply-coupon') }}" method="POST">
+                        {{ csrf_field() }}
+                        <div class="input-group">
+                            <input type="text" name="coupon_code" class="form-control" placeholder="Nhập mã coupon">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="submit">Áp dụng</button>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+
                 {{-- BẢNG HIỆN TỔNG TIỀN --}}
                 <div class="col-sm-6">
                     <div class="total_area">
                         <ul>
                             <li>Tổng tiền <span id="total-amount">{{ Cart::subtotal(0, ',', '.') }} VNĐ</span></li>
                             <li>Thuế <span>0 VNĐ</span></li>
+                            <li>Giảm giá <span id="discount-amount">{{ $coupon ? $coupon['discount'] : '0' }}%</span></li>
                             <li>Tiền vận chuyển <span>Free</span></li>
-                            <li>Thành tiền <span id="final-amount">{{ Cart::subtotal(0, ',', '.') }} VNĐ</span></li>
+                            <li>Thành tiền <span id="final-amount">
+                                    @if ($coupon)
+                                        {{ number_format(Cart::subtotal(0, '', '') * (1 - $coupon['discount'] / 100), 0, ',', '.') }}
+                                        VNĐ
+                                    @else
+                                        {{ Cart::subtotal(0, ',', '.') }} VNĐ
+                                    @endif
+                                </span></li>
                         </ul>
                         <?php
                         $user_id = Session::get('user_id');
@@ -103,71 +141,76 @@
 @endsection
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // AJAX for updating cart quantity
-    document.querySelectorAll('.update-cart-form').forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            var formData = new FormData(form);
-            fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update total amount in the summary
-                        document.getElementById('total-amount').innerText = data.totalAmount + " VNĐ";
-                        document.getElementById('final-amount').innerText = data.finalAmount + " VNĐ";
-
-                        // Find and update item total for this row
-                        const row = form.closest('tr');
-                        if (row) {
-                            row.querySelector('.cart_total_price').innerText = data.itemTotal + " VNĐ";
+    document.addEventListener("DOMContentLoaded", function() {
+        // AJAX for updating cart quantity
+        document.querySelectorAll('.update-cart-form').forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                var formData = new FormData(form);
+                fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
-                    } else {
-                        console.error('Error:', data.message);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update total amount in the summary
+                            document.getElementById('total-amount').innerText = data
+                                .totalAmount + " VNĐ";
+                            document.getElementById('final-amount').innerText = data
+                                .finalAmount + " VNĐ";
+
+                            // Find and update item total for this row
+                            const row = form.closest('tr');
+                            if (row) {
+                                row.querySelector('.cart_total_price').innerText = data
+                                    .itemTotal + " VNĐ";
+                            }
+                        } else {
+                            console.error('Error:', data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+
+        // AJAX for deleting cart item
+        document.querySelectorAll('.cart_quantity_delete').forEach(function(deleteBtn) {
+            deleteBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                var url = this.href;
+
+                fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Remove item row
+                            const row = deleteBtn.closest('tr');
+                            if (row) {
+                                row.remove();
+                            }
+
+                            // Update total amount in the summary
+                            document.getElementById('total-amount').innerText = data
+                                .totalAmount + " VNĐ";
+                            document.getElementById('final-amount').innerText = data
+                                .finalAmount + " VNĐ";
+                        } else {
+                            console.error('Error:', data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
         });
     });
-
-    // AJAX for deleting cart item
-    document.querySelectorAll('.cart_quantity_delete').forEach(function(deleteBtn) {
-        deleteBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            var url = this.href;
-
-            fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Remove item row
-                        const row = deleteBtn.closest('tr');
-                        if (row) {
-                            row.remove();
-                        }
-
-                        // Update total amount in the summary
-                        document.getElementById('total-amount').innerText = data.totalAmount + " VNĐ";
-                        document.getElementById('final-amount').innerText = data.finalAmount + " VNĐ";
-                    } else {
-                        console.error('Error:', data.message);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        });
-    });
-});
 </script>

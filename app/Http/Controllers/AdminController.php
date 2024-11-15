@@ -694,6 +694,202 @@ class AdminController extends Controller
             ->update(['order_status' => 'Cancelled']);
         return redirect()->back()->with('success', 'Đã hủy đơn hàng thành công.');
     }
-    // TRẢ HÀNG TỪ PHÍA KHÁCH HÀNG 
+    // COUPONS
+    public function show_coupons()
+    {
+        $category_book = DB::table('category')
+            ->where('status', 'active')
+            ->orderBy('category_id', 'asc')
+            ->get();
 
+        $tacgia_book = DB::table('author')
+            ->orderBy('author_id', 'asc')
+            ->get();
+
+        $all_publishers = DB::table('book')
+            ->select('publisher', 'book_id')
+            ->where('status', 'active')
+            ->orderBy('publisher', 'desc')
+            ->limit(4)
+            ->get();
+        $publisher_list = $all_publishers->unique('publisher')->values();
+
+        $all_book = DB::table('book')
+            ->where('status', 'active')
+            ->orderBy('book_id', 'asc')
+            ->get();
+
+        $limitWordsFunc = function ($string, $word_limit) {
+            $words = explode(' ', $string);
+            if (count($words) > $word_limit) {
+                return implode(' ', array_splice($words, 0, $word_limit)) . '...';
+            }
+            return $string;
+        };
+        $coupons = DB::table('coupons')
+            ->where('coupon_status', 'active')
+            ->whereDate('expiration_date', '>=', \Carbon\Carbon::now())
+            ->get();
+        return view('pages.coupons.show_coupons')
+            ->with('coupons', $coupons)
+            ->with('category', $category_book) // thể loại
+            ->with('publisher_list', $publisher_list) // nxb
+            ->with('tacgia_book', $tacgia_book) // tác giả
+            ->with('all_book', $all_book) // sách
+            ->with('limitWordsFunc', $limitWordsFunc);
+    }
+    public function add_coupon()
+    {
+        $this->AuthLogin();
+        return view('/admin.add_coupon');
+    }
+    public function save_coupon(Request $request)
+    {
+        $this->AuthLogin();
+        $data = [
+            'coupon_code' => $request->coupon_code,
+            'discount' => $request->discount,
+            'expiration_date' => $request->expiration_date,
+            'coupon_status' => $request->coupon_status,
+        ];
+
+        DB::table('coupons')->insert($data);
+        Session::put('message', 'Thêm coupon thành công');
+        return Redirect::to('/add-coupon');
+    }
+    public function all_coupon()
+    {
+        $this->AuthLogin();
+        $all_coupon = DB::table('coupons')->select('coupons.*')->paginate(6);
+        $manager_coupon = view('admin.all_coupon')->with('all_coupon', $all_coupon);
+        return view('admin_layout')->with('admin.all_coupon', $manager_coupon);
+    }
+    public function search_coupon(Request $request)
+    {
+        $keywords = $request->input('query');
+
+        // Nếu không có từ khóa, trả về thông báo không tìm thấy
+        if (empty($keywords)) {
+            return redirect()->back()->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        // Tìm kiếm theo các trường trong bảng coupons
+        $search_coupon = DB::table('coupons')
+            ->select('coupon_id', 'coupon_code', 'discount', 'expiration_date', 'coupon_status')
+            ->where('coupon_code', 'like', '%' . $keywords . '%')
+            ->orWhere('expiration_date', 'like', '%' . $keywords . '%')
+            ->orWhere('coupon_status', 'like', '%' . $keywords . '%')
+            ->paginate(5);
+
+        // Kiểm tra nếu không có kết quả nào tìm thấy
+        if ($search_coupon->isEmpty()) {
+            return view('admin.all_coupon')
+                ->with('all_coupon', collect()) // gửi danh sách rỗng nếu không tìm thấy kết quả nào
+                ->withErrors(['Không tìm thấy kết quả phù hợp với từ khóa: "' . $keywords . '"']);
+        }
+
+        return view('admin.all_coupon')
+            ->with('all_coupon', $search_coupon);
+    }
+    // CHỈNH SỬA TRẠNG THÁI
+    public function checkAndUpdateExpiredCoupons()
+    {
+        DB::table('coupons')
+            ->where('coupon_status', 'active')
+            ->whereDate('expiration_date', '<', Carbon::now())
+            ->update(['coupon_status' => 'inactive']);
+    }
+    public function active_coupon($cp_id)
+    {
+        $this->AuthLogin();
+        $this->checkAndUpdateExpiredCoupons(); // Kiểm tra và cập nhật trạng thái mã khuyến mãi đã hết hạn
+        DB::table('coupons')->where('coupon_id', $cp_id)->update(['coupon_status' => 'inactive']);
+        Session::put('message', 'Đã đổi trạng thái thành không kích hoạt');
+        return Redirect::to('all-coupon');
+    }
+    public function inactive_coupon($cp_id)
+    {
+        $this->AuthLogin();
+        DB::table('coupons')->where('coupon_id', $cp_id)->update(['coupon_status' => 'active']);
+        Session::put('message', 'Đã đổi trạng thái thành kích hoạt');
+        return Redirect::to('all-coupon');
+    }
+    // XÓA COUPON
+    public function delete_coupon($cp_id)
+    {
+        $this->AuthLogin();
+        DB::table('coupons')->where('coupon_id', $cp_id)->delete();
+        Session::put('message', 'Xóa coupon thành công');
+        return Redirect::to('/all-coupon');
+    }
+    // SỬA NHÀ CUNG CẤP
+    public function edit_coupon($cp_id)
+    {
+        $this->AuthLogin();
+        $edit_coupon = DB::table('coupons')->where('coupon_id', $cp_id)->get();
+        $manager_coupon = view('admin.edit_coupon')->with('edit_coupon', $edit_coupon);
+        return view('admin_layout')->with('admin.edit_coupon', $manager_coupon);
+    }
+
+    public function update_coupon(Request $request, $cp_id)
+    {
+        $this->AuthLogin();
+        // Thêm validation cho số điện thoại và email
+        $data = array();
+        $data = [
+            'coupon_code' => $request->coupon_code,
+            'discount' => $request->discount,
+            'expiration_date' => $request->expiration_date,
+        ];
+
+        DB::table('coupons')->where('coupon_id', $cp_id)->update($data);
+        Session::put('message', 'Cập nhật coupon thành công');
+        return Redirect::to('/all-coupon');
+    }
+    public function apply_coupon(Request $request)
+    {
+        $user_id = Session::get('user_id');
+        $coupon_code = $request->input('coupon_code');
+
+        // Kiểm tra xem mã coupon đã được sử dụng trước đó bởi người dùng này chưa
+        $used_coupon = DB::table('orders')
+            ->where('user_id', $user_id)
+            ->where('coupon_id', function ($query) use ($coupon_code) {
+                $query->select('coupon_id')
+                    ->from('coupons')
+                    ->where('coupon_code', $coupon_code)
+                    ->limit(1);
+            })
+            ->exists();
+
+        if ($used_coupon) {
+            return redirect()->back()->with('error', 'Bạn đã sử dụng mã này rồi.');
+        }
+
+        // Kiểm tra xem mã coupon đã được áp dụng cho đơn hàng hiện tại chưa
+        if (Session::has('coupon')) {
+            return redirect()->back()->with('error', 'Bạn chỉ có thể áp dụng một mã coupon cho mỗi đơn hàng.');
+        }
+
+        // Tìm kiếm mã coupon trong cơ sở dữ liệu
+        $coupon = DB::table('coupons')
+            ->where('coupon_code', $coupon_code)
+            ->first();
+
+        if ($coupon) {
+            // Kiểm tra nếu mã coupon vẫn còn hiệu lực
+            if (Carbon::parse($coupon->expiration_date)->isFuture() && $coupon->coupon_status == 'active') {
+                // Áp dụng mã coupon
+                Session::put('coupon', [
+                    'coupon_id' => $coupon->coupon_id,
+                    'discount' => $coupon->discount
+                ]);
+                return redirect()->back()->with('success', 'Áp dụng mã thành công!');
+            } else {
+                return redirect()->back()->with('error', 'Mã coupon đã hết hạn hoặc không hợp lệ.');
+            }
+        } else {
+            return redirect()->back()->with('error', 'Mã coupon không tồn tại.');
+        }
+    }
 }

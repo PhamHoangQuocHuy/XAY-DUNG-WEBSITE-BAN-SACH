@@ -41,7 +41,7 @@ class ProductController extends Controller
                 'supplier.supplier_email',
                 'supplier.supplier_address'
             )
-            ->paginate(6); // Giới hạn 5 sách mỗi trang
+            ->paginate(6); 
 
         // Hàm giới hạn từ
         $limitWordsFunc = function ($string, $word_limit) {

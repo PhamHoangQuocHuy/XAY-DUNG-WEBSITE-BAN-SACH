@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('review', function (Blueprint $table) {
             $table->integer('review_id', true);
             $table->integer('user_id')->index('user_id');
-            $table->string('username', 50);
             $table->integer('book_id')->index('book_id');
-            $table->integer('book_name');
+            $table->dateTime('review_date');
             $table->unsignedTinyInteger('rating')->nullable();
             $table->string('comment')->nullable();
         });

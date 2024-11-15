@@ -34,8 +34,13 @@
                     <h4 style="color: #000;">THÔNG TIN ĐƠN HÀNG</h4>
                     <p>Mã đơn hàng: <strong style="text-transform: uppercase;color: #fff">{{ $order_code }}</strong>
                     </p>
-                    <p>Mã khuyến mãi áp dụng: <strong style="text-transform: uppercase;color: #fff">Không có</strong>
-                    </p>
+                    <p>Mã khuyến mãi áp dụng: <strong style="text-transform: uppercase;color: #fff">
+                            @if (isset($discount) && $discount > 0)
+                                {{ $discount }}%
+                            @else
+                                Không có
+                            @endif
+                        </strong></p>
                     <p>Phí vận chuyển: <strong style="text-transform: uppercase;color: #fff">0 VNĐ</strong></p>
                     <p>Dịch vụ: <strong style="text-transform: uppercase;color: #fff">Đặt hàng trực tuyến</strong></p>
                     <h4 style="color: #000">THÔNG TIN NGƯỜI NHẬN</h4>
@@ -77,8 +82,8 @@
                         @endif
                     </p>
                     <p>HÌNH THỨC THANH TOÁN: <strong style="text-transform: uppercase;color: #fff">
-                            @if ($payment_method == 'Banking')
-                                Thanh toán qua baking
+                            @if ($payment_method == 'VNPAY')
+                                Thanh toán qua VNPAY
                             @else
                                 Nhận hàng rồi thanh toán
                             @endif
@@ -108,28 +113,44 @@
                         <tbody>
                             @php
                                 $sub_total = 0;
+                                $total_before_discount = 0;
                                 $total = 0;
                             @endphp
                             @foreach ($order_details as $item)
                                 @php
-                                    $sub_total = $item->order_details_quantity * $item->book_price;
+                                    $sub_total = $item->qty * $item->price;
+                                    $total_before_discount += $sub_total;
                                     $total += $sub_total;
+                                    if (isset($discount) && $discount > 0) {
+                                        $total -= $sub_total * ($discount / 100);
+                                    }
                                 @endphp
                                 <tr style="text-align: center">
-                                    <td style="text-align: center">{{ limitWords($item->book_name, 5) }}</td>
-                                    <td style="text-align: center">{{ $item->order_details_quantity }}</td>
-                                    <td style="text-align: center">{{ number_format($item->book_price, 0, ',', '.') }}
-                                        VNĐ</td>
+                                    <td style="text-align: center">{{ limitWords($item->name, 5) }}</td>
+                                    <td style="text-align: center">{{ $item->qty }}</td>
+                                    <td style="text-align: center">{{ number_format($item->price, 0, ',', '.') }} VNĐ
+                                    </td>
                                     <td style="text-align: center">{{ number_format($sub_total, 0, ',', '.') }} VNĐ
                                     </td>
                                 </tr>
                             @endforeach
                             <tr>
-                                <td colspan="4" align="left" style="font-weight:bold; font-size:20px; color: red ">
-                                    TỔNG TIỀN THANH TOÁN:
-                                    <span style="float: right"> {{ number_format($total, 0, ',', '.') }} VNĐ</span>
+                                <td colspan="4" align="left" style="font-weight:bold; font-size:20px; color: red">
+                                    TỔNG TIỀN TRƯỚC GIẢM GIÁ: 
+                                    <span style="float: right">
+                                        {{ number_format($total_before_discount, 0, ',', '.') }} VNĐ
+                                    </span>
                                 </td>
                             </tr>
+                            <tr>
+                                <td colspan="4" align="left" style="font-weight:bold; font-size:20px; color: red">
+                                    TỔNG TIỀN THANH TOÁN: 
+                                    <span style="float: right">
+                                        {{ number_format($total, 0, ',', '.') }} VNĐ
+                                    </span>
+                                </td>
+                            </tr>
+
                         </tbody>
                     </table>
                 </div>

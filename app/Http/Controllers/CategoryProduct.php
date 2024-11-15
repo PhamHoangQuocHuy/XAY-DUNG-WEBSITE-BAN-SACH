@@ -30,7 +30,7 @@ class CategoryProduct extends Controller
     public function all_category()
     {
         $this->AuthLogin();
-        $all_category = DB::table('category')->select('category.*')->paginate(4);
+        $all_category = DB::table('category')->select('category.*')->paginate(5);
         $manager_category = view('admin.all_category')->with('all_category', $all_category);
         return view('admin_layout')->with('admin.all_category', $manager_category);
     }
@@ -214,5 +214,15 @@ class CategoryProduct extends Controller
 
         return view('admin.all_category')
             ->with('all_category', $search_category);
+    }
+    public function deleteSelectedCategories(Request $request)
+    {
+        $ids = $request->input('categories');
+        if ($ids) {
+            DB::table('category')->whereIn('category_id', $ids)->delete();
+            Session::put('message', 'Các mục đã được xóa thành công.');
+            return Redirect::to('all-category');
+        }
+        return redirect()->back()->with('error', 'Không có mục nào được chọn.');
     }
 }

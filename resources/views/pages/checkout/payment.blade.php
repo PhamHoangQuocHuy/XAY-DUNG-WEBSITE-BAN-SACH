@@ -1,5 +1,6 @@
 @extends('layout')
 @section('content')
+    <script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
     <section id="cart_items">
         <div class="container">
             <div class="breadcrumbs" id="login-section">
@@ -24,8 +25,8 @@
             {{-- TRANG SHOW_CART LẤY QUA --}}
             <div class="review-payment">
                 <h2 style="font-weight: bold">XEM LẠI GIỎ HÀNG</h2>
-                <p style="font-size: 15px;font-weight: bold;color: red;">Lưu ý: Nếu có cập nhật số lượng thì reload trang.
-                    Đến bước này out ra thì điền thông tin lại từ đầu :^</p>
+                {{-- <p style="font-size: 15px;font-weight: bold;color: red;">Lưu ý: Nếu có cập nhật số lượng thì reload trang.
+                    Đến bước này out ra thì điền thông tin lại từ đầu :^</p> --}}
             </div>
             <div class="table-responsive cart_info">
                 <?php $content = Cart::content(); ?>
@@ -36,6 +37,7 @@
                             <td class="description">MÔ TẢ</td>
                             <td class="price">GIÁ</td>
                             <td class="quantity">SỐ LƯỢNG</td>
+                            <td class="price">GIẢM GIÁ</td>
                             <td class="total">TỔNG TIỀN</td>
                             <td>THAO TÁC</td>
                         </tr>
@@ -68,6 +70,10 @@
                                         </form>
                                     </div>
                                 </td>
+                                <td>
+                                    <?php $coupon = Session::get('coupon'); ?>
+                                    {{ $coupon ? $coupon['discount'] : '0' }}%
+                                </td>
                                 <td class="cart_total">
                                     <p class="cart_total_price">
                                         {{ number_format($value_content->price * $value_content->qty, 0, ',', '.') }} VNĐ
@@ -97,11 +103,11 @@
 
             {{-- PAYMENT_METHOD --}}
             <h4 style="margin: 40px 0; font-size: 20px;">CHỌN PHƯƠNG THỨC THANH TOÁN</h4>
-            <form action="{{ URL::to('/order-place') }}" method="POST">
+            <form id="order-form" action="{{ URL::to('/order-place') }}" method="POST">
                 {{ csrf_field() }}
                 <div class="payment-options">
                     <span>
-                        <label><input name="payment_option" value="Banking" type="radio" required> Banking</label>
+                        <label><input name="payment_option" value="VNPAY" type="radio" required> VNPAY</label>
                     </span>
                     <span>
                         <label><input name="payment_option" value="Cash on Delivery" type="radio" required> Nhận hàng rồi
@@ -116,7 +122,6 @@
         </div>
     </section>
 @endsection
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // AJAX for updating cart quantity

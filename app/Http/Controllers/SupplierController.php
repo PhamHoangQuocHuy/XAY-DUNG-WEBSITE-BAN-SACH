@@ -30,7 +30,7 @@ class SupplierController extends Controller
     public function all_supplier()
     {
         $this->AuthLogin();
-        $all_supplier = DB::table('supplier')->select('supplier.*')->paginate(4);
+        $all_supplier = DB::table('supplier')->select('supplier.*')->paginate(6);
         $manager_supplier = view('admin.all_supplier')->with('all_supplier', $all_supplier);
         return view('admin_layout')->with('admin.all_supplier', $manager_supplier);
     }
@@ -155,5 +155,15 @@ class SupplierController extends Controller
 
         return view('admin.all_supplier')
             ->with('all_supplier', $search_supplier);
+    }
+    // XÓA THEO CB
+    public function deleteSelectedSuppliers(Request $request)
+    {
+        $ids = $request->input('suppliers');
+        if ($ids) {
+            DB::table('supplier')->whereIn('supplier_id', $ids)->delete();
+            return redirect()->back()->with('success', 'Các mục đã được xóa thành công.');
+        }
+        return redirect()->back()->with('error', 'Không có mục nào được chọn.');
     }
 }

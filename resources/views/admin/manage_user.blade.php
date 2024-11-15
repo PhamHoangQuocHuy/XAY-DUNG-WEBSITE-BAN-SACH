@@ -102,8 +102,9 @@
                 <div class="row">
                     <div class="col-sm-7 text-right text-center-xs">
                         <div class="col-sm-7 text-right text-center-xs">
-                            {{ $all_user->links('pagination::bootstrap-4') }}
-                            <!-- Sử dụng kiểu phân trang Bootstrap 4 -->
+                            
+                            @if ($all_user instanceof \Illuminate\Pagination\LengthAwarePaginator) {{ $all_user->links() }}
+                            @endif
                         </div>
                     </div>
                 </div>

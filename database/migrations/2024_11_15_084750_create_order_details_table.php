@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('book_id')->index('book_id');
             $table->string('book_name');
             $table->integer('book_price');
+            $table->integer('order_details_quantity');
         });
     }
 

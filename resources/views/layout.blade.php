@@ -233,7 +233,7 @@
                                     </ul>
                                 </li>
                                 <li><a href="{{ URL::to('/show-cart') }}">GIỎ HÀNG</a></li>
-                                <li><a href="contact-us.html">LIÊN HỆ</a></li>
+                                <li><a href="{{ URL::to('/show-coupons') }}">COUPONS</a></li>
                             </ul>
                         </div>
                     </div>

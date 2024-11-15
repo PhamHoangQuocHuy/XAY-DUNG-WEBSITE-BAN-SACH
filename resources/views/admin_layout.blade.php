@@ -49,9 +49,9 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
             <div class="top-nav clearfix">
                 <!--search & user info start-->
                 <ul class="nav pull-right top-menu">
-                    <li>
+                    {{-- <li>
                         <input type="text" class="form-control search" placeholder=" Search">
-                    </li>
+                    </li> --}}
                     <!-- user login dropdown start-->
                     <li class="dropdown">
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
@@ -157,7 +157,17 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                                 <li><a href="{{ URL::to('/manage-user') }}">Xem tài khoản</a></li>
                             </ul>
                         </li>
-
+                        {{-- QUẢN LÝ COUPONS --}}
+                        <li class="sub-menu">
+                            <a href="javascript:;">
+                                <i class="fa fa-book"></i>
+                                <span>Quản lý coupons</span>
+                            </a>
+                            <ul class="sub">
+                                <li><a href="{{ URL::to('/add-coupon') }}">Thêm coupon</a></li>
+                                <li><a href="{{ URL::to('/all-coupon') }}">Liệt kê coupon</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
                 <!-- sidebar menu end-->
