@@ -8,10 +8,13 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Hash;
 use PhpParser\Node\Stmt\Return_;
+use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 
 use Carbon\Carbon;
+use GuzzleHttp\Psr7\Message;
+use KitLoong\MigrationsGenerator\Migration\Blueprint\DBStatementBlueprint;
 
 session_start();
 
@@ -37,6 +40,7 @@ class AdminController extends Controller
         $this->AuthLogin();
         return view('admin.dashboard');
     }
+    // ĐĂNG NHẬP ADMIN
     public function dashboard(Request $request)
     {
         $admin_email = $request->admin_email;
@@ -91,18 +95,26 @@ class AdminController extends Controller
     }
     public function view_order($order_id)
     {
-
-        $order_by_id = DB::table('orders')
+        // Lấy thông tin đơn hàng, người dùng và vận chuyển
+        $order_info = DB::table('orders')
             ->join('user', 'user.user_id', '=', 'orders.user_id')
             ->join('shipping', 'shipping.shipping_id', '=', 'orders.shipping_id')
-            ->join('order_details', 'order_details.order_id', '=', 'orders.order_id')
-            ->select('orders.*', 'shipping.*', 'order_details.*', 'user.*')
+            ->join('payment', 'payment.payment_id', '=', 'orders.payment_id')
+            ->select('orders.*', 'shipping.*', 'user.*', 'payment.*')
             ->where('orders.order_id', $order_id)
             ->first();
 
-        $manager_order_by_id = view('admin.view_order')
-            ->with('order_by_id', $order_by_id);
-        return view('admin_layout')->with('admin.view_order', $manager_order_by_id);
+        // Lấy tất cả các chi tiết đơn hàng
+        $order_details = DB::table('order_details')
+            ->join('book', 'order_details.book_id', '=', 'book.book_id')
+            ->select('order_details.*')
+            ->where('order_details.order_id', $order_id)
+            ->get();
+
+        // Truyền dữ liệu vào view
+        return view('admin.view_order')
+            ->with('order_info', $order_info)
+            ->with('order_details', $order_details);
     }
     public function delete_order($order_id)
     {
@@ -113,7 +125,60 @@ class AdminController extends Controller
         // Xóa đơn hàng
         DB::table('orders')->where('order_id', $order_id)->delete();
 
-        return Redirect::to('order-list')->with('success', 'Đơn hàng đã được xóa thành công');
+        return Redirect::to('/manage-order')->with('success', 'Đơn hàng đã được xóa thành công');
+    }
+    // CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
+    public function update_order_status(Request $request, $order_id)
+    {
+        // Tìm đơn hàng theo id
+        $order = DB::table('orders')->where('order_id', $order_id)->first();
+        // Kiểm tra trạng thái hiện tại của đơn hàng 
+        if ($order->order_status != 'Processing') {
+            return redirect()->back()->with('error', 'Chỉ có thể thay đổi trạng thái từ Đơn mới.');
+        }
+        // Cập nhật trạng thái đơn hàng
+        DB::table('orders')->where('order_id', $order_id)->update(['order_status' => $request->order_status]);
+
+        // Lấy thông tin người đặt hàng 
+        $shipping_info = DB::table('shipping')
+            ->where('shipping_id', $order->shipping_id)
+            ->first();
+        // Lấy thông tin coupon nếu có 
+        $coupon_info = null;
+        if ($order->coupon_id) {
+            $coupon_info = DB::table('coupons')
+                ->where('coupon_id', $order->coupon_id)
+                ->first();
+        }
+        $email_data = [
+            'name' => $shipping_info->shipping_name,
+            'address' => $shipping_info->shipping_address,
+            'phone' => $shipping_info->shipping_phone,
+            'email' => $shipping_info->shipping_email,
+            'notes' => $shipping_info->shipping_notes,
+            'order_code' => $order->code_order,
+            'order_total' => $order->order_total,
+            'coupons' => $coupon_info,
+            'order_details' => DB::table('order_details')->where('order_id', $order_id)->get(),
+            'payment_method' => DB::table('payment')
+                ->where('payment_id', $order->payment_id)
+                ->value('payment_method'),
+            'shipping_info' => $shipping_info
+        ];
+        $subject = "Thư thông báo về trạng thái đơn hàng với mã đơn hàng là: " . $order->code_order;
+        // Chọn template email dựa trên trạng thái đơn hàng 
+        if ($request->order_status == 'Delivered') {
+            $template = 'pages.emails.order_delivered_notification';
+        } elseif ($request->order_status == 'Cancelled') {
+            $template = 'pages.emails.order_canceled_notification';
+        } else {
+            return redirect()->back()->with('error', 'Trạng thái không hợp lệ.');
+        }
+        // Gửi email thông báo 
+        Mail::send($template, $email_data, function ($message) use ($email_data, $subject) {
+            $message->to($email_data['email'], $email_data['name'])->subject($subject);
+        });
+        return redirect()->back()->with('success', 'Đã cập nhật trạng thái đơn hàng và gửi email thông báo.');
     }
 
     // ACCOUNT (USER)
@@ -440,7 +505,14 @@ class AdminController extends Controller
 
         // Lấy thông tin người dùng hiện tại từ cơ sở dữ liệu
         $user = DB::table('user')->where('user_id', $user_id)->first();
-
+        // Kiểm tra xem số điện thoại đã tồn tại hay chưa 
+        $existingPhone = DB::table('user')
+            ->where('phone', $request->phone)
+            ->where('user_id', '!=', $user_id)
+            ->first();
+        if ($existingPhone) {
+            return redirect()->back()->with('message', 'Số điện thoại đã tồn tại.');
+        }
         // Chuẩn bị dữ liệu để cập nhật
         $data = [];
 
@@ -529,51 +601,6 @@ class AdminController extends Controller
             ->with('all_user', $search_user);
     }
 
-    // CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
-    public function update_order_status(Request $request, $order_id)
-    {
-        // Tìm đơn hàng theo id
-        $order = DB::table('orders')->where('order_id', $order_id)->first();
-        // Kiểm tra trạng thái hiện tại của đơn hàng 
-        if ($order->order_status != 'Processing') {
-            return redirect()->back()->with('error', 'Chỉ có thể thay đổi trạng thái từ Đơn mới.');
-        }
-        // Cập nhật trạng thái đơn hàng
-        DB::table('orders')->where('order_id', $order_id)->update(['order_status' => $request->order_status]);
-
-        // Lấy thông tin người đặt hàng 
-        $shipping_info = DB::table('shipping')
-            ->where('shipping_id', $order->shipping_id)
-            ->first();
-        $email_data = [
-            'name' => $shipping_info->shipping_name,
-            'address' => $shipping_info->shipping_address,
-            'phone' => $shipping_info->shipping_phone,
-            'email' => $shipping_info->shipping_email,
-            'notes' => $shipping_info->shipping_notes,
-            'order_code' => $order->code_order,
-            'order_total' => $order->order_total,
-            'order_details' => DB::table('order_details')->where('order_id', $order_id)->get(),
-            'payment_method' => DB::table('payment')
-                ->where('payment_id', $order->payment_id)
-                ->value('payment_method'),
-            'shipping_info' => $shipping_info
-        ];
-        $subject = "Thư thông báo về trạng thái đơn hàng với mã đơn hàng là: " . $order->code_order;
-        // Chọn template email dựa trên trạng thái đơn hàng 
-        if ($request->order_status == 'Delivered') {
-            $template = 'pages.emails.order_delivered_notification';
-        } elseif ($request->order_status == 'Cancelled') {
-            $template = 'pages.emails.order_canceled_notification';
-        } else {
-            return redirect()->back()->with('error', 'Trạng thái không hợp lệ.');
-        }
-        // Gửi email thông báo 
-        Mail::send($template, $email_data, function ($message) use ($email_data, $subject) {
-            $message->to($email_data['email'], $email_data['name'])->subject($subject);
-        });
-        return redirect()->back()->with('success', 'Đã cập nhật trạng thái đơn hàng và gửi email thông báo.');
-    }
     // XEM LỊCH SỬ ĐƠN HÀNG ĐÃ MUA
     public function user_orders_history($user_id)
     {
@@ -731,7 +758,7 @@ class AdminController extends Controller
             ->whereDate('expiration_date', '>=', \Carbon\Carbon::now())
             ->get();
         return view('pages.coupons.show_coupons')
-            ->with('coupons', $coupons)
+            ->with('coupon', $coupons)
             ->with('category', $category_book) // thể loại
             ->with('publisher_list', $publisher_list) // nxb
             ->with('tacgia_book', $tacgia_book) // tác giả
@@ -791,7 +818,7 @@ class AdminController extends Controller
         return view('admin.all_coupon')
             ->with('all_coupon', $search_coupon);
     }
-    // CHỈNH SỬA TRẠNG THÁI
+    // CHỈNH SỬA TRẠNG THÁI COUPON
     public function checkAndUpdateExpiredCoupons()
     {
         DB::table('coupons')
@@ -822,7 +849,7 @@ class AdminController extends Controller
         Session::put('message', 'Xóa coupon thành công');
         return Redirect::to('/all-coupon');
     }
-    // SỬA NHÀ CUNG CẤP
+    // SỬA COUPON
     public function edit_coupon($cp_id)
     {
         $this->AuthLogin();
@@ -846,6 +873,7 @@ class AdminController extends Controller
         Session::put('message', 'Cập nhật coupon thành công');
         return Redirect::to('/all-coupon');
     }
+    // ÁP DỤNG COUPON
     public function apply_coupon(Request $request)
     {
         $user_id = Session::get('user_id');
@@ -891,5 +919,122 @@ class AdminController extends Controller
         } else {
             return redirect()->back()->with('error', 'Mã coupon không tồn tại.');
         }
+    }
+    // ĐĂNG NHẬP GMAIL
+    public function login_google()
+    {
+        config(['service.google.redirect' => env('GOOGLE_CLIENT_URL')]);
+        return Socialite::driver('google')->stateless()->redirect();
+    }
+    public function callback_google()
+    {
+        config(['services.google.redirect' => env('GOOGLE_CLIENT_URL')]);
+        $users = Socialite::driver('google')->stateless()->user();
+        $authUser = $this->findOrCreateUser($users, 'google');
+
+        if ($authUser) {
+            $account_name = DB::table('user')->where('user_id', $authUser->user_id)->first();
+            Session::put('user_id', $account_name->user_id);
+            Session::put('username', $account_name->username);
+            // Lưu trữ thông tin đăng nhập Google vào session 
+            Session::put('google_token', $users->token);
+            Session::put('google_user', $users);
+            return redirect('/trang-chu')->with('message', 'Đăng nhập bằng tài khoản Google <span style="color:green">' . $account_name->email . '</span> thành công');
+        }
+
+        return redirect('/dang-nhap')->with('error', 'Có lỗi xảy ra khi đăng nhập bằng tài khoản Google.');
+    }
+    public function findOrCreateUser($users)
+    {
+        // Kiểm tra xem người dùng có email đã tồn tại hay chưa
+        $authUser = DB::table('user')
+            ->where('email', $users->email)
+            ->orWhere('google_id', $users->id)
+            ->first();
+
+        if ($authUser) {
+            // Nếu người dùng đã tồn tại và google_id chưa được gán, cập nhật google_id
+            if (empty($authUser->google_id)) {
+                DB::table('user')
+                    ->where('user_id', $authUser->user_id)
+                    ->update(['google_id' => $users->id]);
+            }
+            return $authUser;
+        } else {
+            // Nếu người dùng chưa tồn tại, tạo bản ghi mới
+            $user_new_id = DB::table('user')
+                ->insertGetId([
+                    'username' => $users->name,
+                    'email' => $users->email,
+                    'google_id' => $users->id, // Lưu google_id
+                    'password' => '',
+                    'fullname' => $users->name,
+                    'register_date' => Carbon::now(),
+                    'status' => 'active'
+                ]);
+
+            return DB::table('user')->where('user_id', $user_new_id)->first();
+        }
+    }
+    // CẬP NHẬT THÔNG TIN ADMIN
+    public function edit_admin()
+    {
+        $admin_id = Session::get('user_id');
+        $admin_info = DB::table('user')->where('user_id', $admin_id)->first();
+
+        return view('admin.edit_admin')->with('admin_info', $admin_info);
+    }
+    // Cập nhật thông tin tài khoản admin 
+    public function update_admin(Request $request, $admin_id)
+    {
+        $request->validate([
+            'username' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255',
+            'fullname' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:15',
+            'password' => 'nullable|string|min:5|confirmed'
+        ]);
+
+        // Lấy thông tin admin hiện tại từ cơ sở dữ liệu
+        $admin = DB::table('user')->where('user_id', $admin_id)->first();
+
+        // Kiểm tra xem số điện thoại đã tồn tại hay chưa 
+        $existingPhone = DB::table('user')
+            ->where('phone', $request->phone)
+            ->where('user_id', '!=', $admin_id)
+            ->first();
+        if ($existingPhone) {
+            return redirect()->back()->with('message', 'Số điện thoại đã tồn tại.');
+        }
+
+        // Chuẩn bị dữ liệu để cập nhật
+        $data = [];
+
+        if ($request->username && $request->username != $admin->username) {
+            $data['username'] = $request->username;
+        }
+        if ($request->email && $request->email != $admin->email) {
+            $data['email'] = $request->email;
+        }
+        if ($request->fullname && $request->fullname != $admin->fullname) {
+            $data['fullname'] = $request->fullname;
+        }
+        if ($request->address && $request->address != $admin->address) {
+            $data['address'] = $request->address;
+        }
+        if ($request->phone && $request->phone != $admin->phone) {
+            $data['phone'] = $request->phone;
+        }
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        // Cập nhật thông tin admin
+        if (!empty($data)) {
+            DB::table('user')->where('user_id', $admin_id)->update($data);
+        }
+
+        return redirect('/edit-admin')->with('message', 'Thông tin tài khoản đã được cập nhật.');
     }
 }

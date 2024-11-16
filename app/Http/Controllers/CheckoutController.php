@@ -255,10 +255,11 @@ class CheckoutController extends Controller
     // ĐĂNG XUẤT
     public function logout_checkout()
     {
-        Session::forget('user_id');
-        Session::forget('username'); // Xóa username khỏi session
-        Session::forget('coupon');
+        // Session::forget('user_id');
+        // Session::forget('username');
+        // Session::forget('coupon');
         Session::flush(); // xóa phiên
+
         return Redirect::to('/trang-chu')->with('success', 'Đăng xuất thành công.');
     }
     public function edit_shipping()

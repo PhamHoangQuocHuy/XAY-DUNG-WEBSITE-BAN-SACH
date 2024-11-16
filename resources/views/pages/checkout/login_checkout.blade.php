@@ -20,6 +20,9 @@
                             </span>
                             <button type="submit" name="login" class="btn btn-default">ĐĂNG NHẬP</button>
                         </form>
+                        <a href="{{ url('/login-google') }}"><button class="btn btn-info">Đăng nhập bằng Google <img
+                                    src="{{ asset('public/frontend/images/google_icon.png') }}" width="20px"
+                                    alt=""></button></a>
                     </div><!--/login form-->
                 </div>
                 <div class="col-sm-1">

@@ -10,7 +10,7 @@ use Gloudemans\Shoppingcart\Facades\Cart;
 
 class CartController extends Controller
 {
-    
+
     public function save_cart(Request $request)
     {
         $category_book = DB::table('category')

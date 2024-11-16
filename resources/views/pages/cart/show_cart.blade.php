@@ -62,8 +62,13 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <?php $coupon = Session::get('coupon'); ?>
-                                    {{ $coupon ? $coupon['discount'] : '0' }}%
+                                    @if (Session::has('coupon'))
+                                        @foreach (Session::get('coupon') as $coupon)
+                                            <span id="discount-amount">{{ $coupon['discount'] }}%</span>
+                                        @endforeach
+                                    @else
+                                        <span id="discount-amount">0%</span>
+                                    @endif
                                 </td>
                                 <td class="cart_total">
                                     <p class="cart_total_price">
@@ -106,12 +111,22 @@
                         <ul>
                             <li>Tổng tiền <span id="total-amount">{{ Cart::subtotal(0, ',', '.') }} VNĐ</span></li>
                             <li>Thuế <span>0 VNĐ</span></li>
-                            <li>Giảm giá <span id="discount-amount">{{ $coupon ? $coupon['discount'] : '0' }}%</span></li>
+                            <li>Giảm giá <span id="discount-amount">
+                                    @if (Session::has('coupon'))
+                                        @foreach (Session::get('coupon') as $coupon)
+                                            {{ $coupon['discount'] }}%
+                                        @endforeach
+                                    @else
+                                        0%
+                                    @endif
+                                </span></li>
                             <li>Tiền vận chuyển <span>Free</span></li>
                             <li>Thành tiền <span id="final-amount">
-                                    @if ($coupon)
-                                        {{ number_format(Cart::subtotal(0, '', '') * (1 - $coupon['discount'] / 100), 0, ',', '.') }}
-                                        VNĐ
+                                    @if (Session::has('coupon'))
+                                        @foreach (Session::get('coupon') as $coupon)
+                                            {{ number_format(Cart::subtotal(0, '', '') * (1 - $coupon['discount'] / 100), 0, ',', '.') }}
+                                            VNĐ
+                                        @endforeach
                                     @else
                                         {{ Cart::subtotal(0, ',', '.') }} VNĐ
                                     @endif

@@ -35,6 +35,10 @@ Route::get('/admin', [AdminController::class, 'index']);
 Route::get('/dashboard', [AdminController::class, 'show_dashboard']);
 Route::post('/admin_dashboard', [AdminController::class, 'dashboard']); // đăng nhập thành công sẽ hiển thị
 Route::get('/logout', [AdminController::class, 'logout']);
+Route::get('/edit-admin', [AdminController::class, 'edit_admin']);
+
+
+Route::post('/update-admin/{admin_id}', [AdminController::class, 'update_admin'])->name('update.admin');
 
 // ADMIN -> ORDER
 Route::get('/manage-order', [AdminController::class, 'manage_order']);
@@ -172,6 +176,9 @@ Route::post('/update-coupon/{coupon_id}', [AdminController::class, 'update_coupo
 Route::post('/save-coupon', [AdminController::class, 'save_coupon']);
 Route::post('/apply-coupon', [AdminController::class, 'apply_coupon']);
 
+//Google
+Route::get('/login-google', [AdminController::class, 'login_google']);
+Route::get('/trang-chu/google/callback', [AdminController::class, 'callback_google']);
 
 // laravel 8 trở lên phải sử dụng [Controller::class, 'method'] theo cú pháp array-based
 // Gọi tên controller rồi đến hàm của controller đó
