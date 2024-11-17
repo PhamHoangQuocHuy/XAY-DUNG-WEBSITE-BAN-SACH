@@ -126,7 +126,7 @@
                                                     <h4 class="panel-title">
                                                         <a class="hover-effect"
                                                             style="font-size: 12px; font-weight: bold;background-color: rgb(108 99 99 / 60%);"
-                                                            href="{{ url('/user-orders-history/'.Session::get('user_id')) }}">
+                                                            href="{{ url('/user-orders-history/' . Session::get('user_id')) }}">
                                                             <i class="fa-solid fa-clock-rotate-left"
                                                                 style="color: #FFD43B;"></i>
                                                             Đơn hàng đã mua
@@ -471,7 +471,8 @@
         </div>
         {{-- TÍCH HỢP AI CHAT BOX --}}
         <div class="chat-icon" onclick="toggleChatBox()"></div>
-        <div class="chat-box"> <!-- Chatbot widget --> <iframe allow="microphone;" width="350" height="430"
+        <div class="chat-box"> <!-- Chatbot widget -->
+            <iframe allow="microphone;" width="350" height="430"
                 src="https://console.dialogflow.com/api-client/demo/embedded/f27a1e4b-b1e5-4324-8e81-04981f4fa0c6">
             </iframe>
         </div>
@@ -536,4 +537,148 @@
         border: 1px solid #ccc;
         background-color: #fff;
     }
+
+    .chat-icon:hover {
+        animation: gentle-shake-hover 0.5s infinite;
+    }
+
+    @keyframes gentle-shake-hover {
+        0% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+
+        10% {
+            transform: translate(-1px, 0) rotate(-1deg);
+        }
+
+        20% {
+            transform: translate(1px, 1px) rotate(1deg);
+        }
+
+        30% {
+            transform: translate(-1px, -1px) rotate(0deg);
+        }
+
+        40% {
+            transform: translate(1px, 0) rotate(1deg);
+        }
+
+        50% {
+            transform: translate(-1px, 1px) rotate(0deg);
+        }
+
+        60% {
+            transform: translate(1px, -1px) rotate(-1deg);
+        }
+
+        70% {
+            transform: translate(0, 1px) rotate(1deg);
+        }
+
+        80% {
+            transform: translate(1px, -1px) rotate(0deg);
+        }
+
+        90% {
+            transform: translate(0, 1px) rotate(-1deg);
+        }
+
+        100% {
+            transform: translate(-1px, 0) rotate(0deg);
+        }
+    }
+
+    .chat-icon::after,
+    .chat-icon::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background-color: transparent;
+        display: none;
+    }
+
+    .chat-icon:hover::after,
+    .chat-icon:hover::before {
+        display: block;
+        animation: signal 1.5s infinite;
+    }
+
+    .chat-icon::before {
+        width: 60px;
+        height: 60px;
+        border: 2px solid red;
+        opacity: 0.7;
+    }
+
+    .chat-icon::after {
+        width: 80px;
+        height: 80px;
+        border: 2px solid red;
+        animation-delay: 0.5s;
+        opacity: 0.5;
+    }
+
+    .chat-icon:hover .vibration span {
+        display: block;
+        position: absolute;
+        border-radius: 50%;
+        background-color: red;
+        animation: pulse 1.5s infinite;
+    }
+
+    .vibration {
+        display: none;
+    }
+
+    .chat-icon:hover .vibration {
+        display: block;
+    }
+
+    .vibration span:nth-child(1) {
+        width: 40px;
+        height: 40px;
+        top: -10px;
+        left: -10px;
+    }
+
+    .vibration span:nth-child(2) {
+        width: 60px;
+        height: 60px;
+        top: -20px;
+        left: -20px;
+        animation-delay: 0.5s;
+    }
+
+    .vibration span:nth-child(3) {
+        width: 80px;
+        height: 80px;
+        top: -30px;
+        left: -30px;
+        animation-delay: 1s;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 0.7;
+        }
+
+        50% {
+            transform: scale(1.5);
+            opacity: 0.3;
+        }
+
+        100% {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
 </style>
+<div class="vibaration">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>

@@ -63,10 +63,10 @@
                                             method="POST">
                                             {{ csrf_field() }}
                                             <input class="cart_quantity_input" type="text" name="cart_quantity"
-                                                value="{{ $value_content->qty }}" min="1">
+                                                value="{{ $value_content->qty }}" min="1" readonly>
                                             <input type="hidden" value="{{ $value_content->rowId }}" name="rowId_cart"
                                                 class="form-control">
-                                            <button type="submit" class="btn btn-default btn-sm">Cập nhật</button>
+                                            {{-- <button type="submit" class="btn btn-default btn-sm">Cập nhật</button> --}}
                                         </form>
                                     </div>
                                 </td>

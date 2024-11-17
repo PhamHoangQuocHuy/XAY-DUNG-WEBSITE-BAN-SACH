@@ -92,7 +92,7 @@
                     <div class="col-sm-7 text-right text-center-xs">
                         <div class="col-sm-7 text-right text-center-xs">
                             
-                            @if ($all_category instanceof \Illuminate\Pagination\LengthAwarePaginator) {{ $all_category->links() }}
+                            @if ($all_category instanceof \Illuminate\Pagination\LengthAwarePaginator) {{ $all_category->links('pagination::bootstrap-4') }}
                             @endif
                         </div>
                     </div>

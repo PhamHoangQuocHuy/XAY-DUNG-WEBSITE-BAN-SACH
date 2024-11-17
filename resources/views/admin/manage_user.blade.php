@@ -37,7 +37,6 @@
                                     <input type="checkbox"><i></i>
                                 </label>
                             </th>
-                            <th style="text-align: center;color: black">ID</th>
                             <th style="text-align: center;color: black">TÊN TÀI KHOẢN</th>
                             <th style="text-align: center;color: black">EMAIL</th>
                             <th style="text-align: center;color: black">TÊN ĐẦY ĐỦ</th>
@@ -60,7 +59,6 @@
                                         <input type="checkbox" name="post[]"><i></i>
                                     </label>
                                 </td>
-                                <td style="text-align: center;align-content: center; color: black">{{ $key + 1 }}</td>
                                 <td style="text-align: center;align-content: center; color: black">{{ $user->username }}
                                 </td>
                                 <td style="text-align: center;align-content: center; color: black">{{ $user->email }}</td>
@@ -103,7 +101,7 @@
                     <div class="col-sm-7 text-right text-center-xs">
                         <div class="col-sm-7 text-right text-center-xs">
                             
-                            @if ($all_user instanceof \Illuminate\Pagination\LengthAwarePaginator) {{ $all_user->links() }}
+                            @if ($all_user instanceof \Illuminate\Pagination\LengthAwarePaginator) {{ $all_user->links('pagination::bootstrap-4') }}
                             @endif
                         </div>
                     </div>

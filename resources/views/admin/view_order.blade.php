@@ -53,7 +53,12 @@
                     <tbody>
                         <tr>
                             <td style="text-align: center;align-content: center;color: black">
-                                {{ $order_info->payment_method }}
+                                @if ($order_info->payment_method == 'Cash on Delivery')
+                                    <span style="color: purple;font-size:15px;font-weight: bold ">Nhận hàng rồi thanh
+                                        toán</span>
+                                @else
+                                    <span style="color: green;font-size:15px;font-weight: bold ">VNPAY</span>
+                                @endif
                             </td>
                             <td
                                 style="text-align: center; align-content: center; color: 

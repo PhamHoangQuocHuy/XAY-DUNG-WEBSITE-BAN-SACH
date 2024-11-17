@@ -142,7 +142,7 @@
                     <div class="col-sm-7 text-right text-center-xs">
                         <div class="col-sm-7 text-right text-center-xs">
                             
-                            @if ($all_book instanceof \Illuminate\Pagination\LengthAwarePaginator) {{ $all_book->links() }}
+                            @if ($all_book instanceof \Illuminate\Pagination\LengthAwarePaginator) {{ $all_book->links('pagination::bootstrap-4') }}
                             @endif
                         </div>
                     </div>

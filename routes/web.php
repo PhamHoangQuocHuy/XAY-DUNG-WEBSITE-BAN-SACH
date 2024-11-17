@@ -9,6 +9,8 @@ use App\Http\Controllers\CategoryProduct;   //gọi controller của cate
 use App\Http\Controllers\ProductController; // gọi controller của product
 use App\Http\Controllers\SupplierController; // gọi controller của supplier
 use App\Http\Controllers\CheckoutController; // gọi controller của checkout
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 
 // Route::get('/', 'HomeController@index');
@@ -179,6 +181,20 @@ Route::post('/apply-coupon', [AdminController::class, 'apply_coupon']);
 //Google
 Route::get('/login-google', [AdminController::class, 'login_google']);
 Route::get('/trang-chu/google/callback', [AdminController::class, 'callback_google']);
+
+// Route::get('/test-email', function () {
+//     $request = new \Illuminate\Http\Request();
+//     $request->merge(['email' => 'mongdu1979@gmail.com']);
+//     try {
+//         Mail::send('pages.checkout.link_reset_password', ['token' => Str::random(20)], function ($message) use ($request) {
+//             $message->to($request->email);
+//             $message->subject('Kiểm tra gửi email');
+//         });
+//         return 'Email đã được gửi';
+//     } catch (\Exception $e) {
+//         return 'Có lỗi xảy ra: ' . $e->getMessage();
+//     }
+// });
 
 // laravel 8 trở lên phải sử dụng [Controller::class, 'method'] theo cú pháp array-based
 // Gọi tên controller rồi đến hàm của controller đó

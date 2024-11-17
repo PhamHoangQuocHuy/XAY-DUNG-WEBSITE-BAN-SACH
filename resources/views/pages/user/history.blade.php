@@ -38,6 +38,7 @@
                                     <i
                                         class="fa fa-eye text-info text-active"style="color: #007bff; font-size: 30px; margin: 0 5px;"></i>
                                 </a>
+                                {{-- HỦY ĐƠN --}}
                                 @if ($order->order_status == 'Processing')
                                     <form action="{{ URL('/cancel-order/' . $order->order_id) }}" method="POST"
                                         style="display:inline;">
@@ -47,13 +48,14 @@
                                         </button>
                                     </form>
                                 @endif
-                                @if ($order->order_status == 'Delivered')
+                                {{-- TRẢ HÀNG --}}
+                                {{-- @if ($order->order_status == 'Delivered')
                                     <form action="{{ URL('/return-order/' . $order->order_id) }}" method="POST"
                                         style="display:inline;"> {{ csrf_field() }} <button type="submit"
                                             class="btn btn-warning"
                                             onclick="return confirm('Bạn có chắc muốn trả hàng không?');"> Trả hàng
                                         </button> </form>
-                                @endif
+                                @endif --}}
                             </td>
                         </tr>
                     @endforeach

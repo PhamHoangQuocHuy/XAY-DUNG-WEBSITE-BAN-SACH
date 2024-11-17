@@ -90,7 +90,7 @@
                     <div class="col-sm-7 text-right text-center-xs">
                         <div class="col-sm-7 text-right text-center-xs">
                             <!-- Chỉ hiển thị links nếu là Paginator -->
-                            @if ($all_coupon instanceof \Illuminate\Pagination\LengthAwarePaginator) {{ $all_coupon->links() }}
+                            @if ($all_coupon instanceof \Illuminate\Pagination\LengthAwarePaginator) {{ $all_coupon->links('pagination::bootstrap-4') }}
                             @endif
                         </div>
                     </div>

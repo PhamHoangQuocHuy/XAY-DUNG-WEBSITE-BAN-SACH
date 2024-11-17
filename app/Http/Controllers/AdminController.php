@@ -85,7 +85,7 @@ class AdminController extends Controller
             ->join('user', 'user.user_id', '=', 'orders.user_id')
             ->select('orders.*', 'user.username')
             ->orderBy('orders.order_id', 'asc')
-            ->paginate(5);
+            ->paginate(10);
 
         $manager_order = view('admin.manage_order')
             ->with('all_order', $all_order);
@@ -341,11 +341,9 @@ class AdminController extends Controller
             }
             return $string;
         };
-
         $request->validate(['email' => 'required|email']);
 
         $user = DB::table('user')->where('email', $request->email)->first();
-
         if (!$user) {
             return back()->withErrors(['email' => 'Email không tồn tại trong hệ thống.'])
                 ->with('category', $category_book)
@@ -355,19 +353,31 @@ class AdminController extends Controller
                 ->with('limitWordsFunc', $limitWordsFunc);
         }
 
+        if (is_null($user->password)) {
+            return back()->withErrors(['email' => 'Tài khoản đã đăng nhập bằng Google không thể đặt lại mật khẩu.'])
+                ->with('category', $category_book)
+                ->with('publisher_list', $publisher_list)
+                ->with('tacgia_book', $tacgia_book)
+                ->with('all_book', $all_book)
+                ->with('limitWordsFunc', $limitWordsFunc);
+        }
+
+
         $token = Str::random(20);
         DB::table('password_resets')->insert([
             'email' => $request->email,
             'token' => $token,
             'created_at' => Carbon::now()
         ]);
-
-        Mail::send('pages.checkout.link_reset_password', ['token' => $token], function ($message) use ($request) {
-            $message->to($request->email);
-            $message->subject('Liên kết đặt lại mật khẩu của bạn');
-        });
-
-        return back()->with('message', 'Liên kết đặt lại mật khẩu đã được gửi tới email của bạn.');
+        try {
+            Mail::send('pages.checkout.link_reset_password', ['token' => $token], function ($message) use ($request) {
+                $message->to($request->email);
+                $message->subject('Liên kết đặt lại mật khẩu của bạn');
+            });
+            return back()->with('message', 'Liên kết đặt lại mật khẩu đã được gửi tới email của bạn.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Có lỗi xảy ra khi gửi email: ' . $e->getMessage()]);
+        }
     }
     public function showResetForm($token) // Hiển thị form điền lại mật khẩu mới 
     {
@@ -692,11 +702,15 @@ class AdminController extends Controller
         $shipping_info = DB::table('shipping')
             ->where('shipping_id', $order->shipping_id)
             ->first();
-
+        // Lấy thông tin thanh toán
+        $payment_info = DB::table('payment')
+            ->where('payment_id', $order->payment_id)
+            ->first();
         return view('pages.user.history_order_details', [
             'order' => $order,
             'order_details' => $order_details,
             'shipping_info' => $shipping_info,
+            'payment_info' => $payment_info,
             'category' => $category_book,
             'publisher_list' => $publisher_list,
             'tacgia_book' => $tacgia_book,
@@ -758,7 +772,7 @@ class AdminController extends Controller
             ->whereDate('expiration_date', '>=', \Carbon\Carbon::now())
             ->get();
         return view('pages.coupons.show_coupons')
-            ->with('coupon', $coupons)
+            ->with('coupons', $coupons)
             ->with('category', $category_book) // thể loại
             ->with('publisher_list', $publisher_list) // nxb
             ->with('tacgia_book', $tacgia_book) // tác giả
