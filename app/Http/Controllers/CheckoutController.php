@@ -255,9 +255,9 @@ class CheckoutController extends Controller
     // ĐĂNG XUẤT
     public function logout_checkout()
     {
-        // Session::forget('user_id');
-        // Session::forget('username');
-        // Session::forget('coupon');
+        Session::forget('user_id');
+        Session::forget('username');
+        Session::forget('coupon');
         Session::flush(); // xóa phiên
 
         return Redirect::to('/trang-chu')->with('success', 'Đăng xuất thành công.');
@@ -360,12 +360,13 @@ class CheckoutController extends Controller
         $coupon_id = null;
 
         $coupon = Session::get('coupon');
-        if ($coupon) {
-            $discount_percent = $coupon['discount'];
+        if ($coupon && isset($coupon[0]['discount'])) {
+            $discount_percent = $coupon[0]['discount'];
             $discount_amount = ($total_price * $discount_percent) / 100;
             $total_price = $total_price - $discount_amount;
-            $coupon_id = $coupon['coupon_id'];
+            $coupon_id = $coupon[0]['coupon_id'];
         }
+
 
         // INSERT PAYMENT_METHOD
         $data = array();

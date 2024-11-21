@@ -163,7 +163,8 @@ class AdminController extends Controller
             'payment_method' => DB::table('payment')
                 ->where('payment_id', $order->payment_id)
                 ->value('payment_method'),
-            'shipping_info' => $shipping_info
+            'shipping_info' => $shipping_info,
+            'discount' => $coupon_info ? $coupon_info->discount : 0
         ];
         $subject = "Thư thông báo về trạng thái đơn hàng với mã đơn hàng là: " . $order->code_order;
         // Chọn template email dựa trên trạng thái đơn hàng 
@@ -923,9 +924,12 @@ class AdminController extends Controller
             if (Carbon::parse($coupon->expiration_date)->isFuture() && $coupon->coupon_status == 'active') {
                 // Áp dụng mã coupon
                 Session::put('coupon', [
-                    'coupon_id' => $coupon->coupon_id,
-                    'discount' => $coupon->discount
+                    [
+                        'coupon_id' => $coupon->coupon_id,
+                        'discount' => $coupon->discount
+                    ]
                 ]);
+
                 return redirect()->back()->with('success', 'Áp dụng mã thành công!');
             } else {
                 return redirect()->back()->with('error', 'Mã coupon đã hết hạn hoặc không hợp lệ.');
@@ -998,7 +1002,7 @@ class AdminController extends Controller
 
         return view('admin.edit_admin')->with('admin_info', $admin_info);
     }
-    // Cập nhật thông tin tài khoản admin 
+    // CẬP NHẬT THÔNG TIN ADMIN
     public function update_admin(Request $request, $admin_id)
     {
         $request->validate([
@@ -1050,5 +1054,28 @@ class AdminController extends Controller
         }
 
         return redirect('/edit-admin')->with('message', 'Thông tin tài khoản đã được cập nhật.');
+    }
+    // LỌC ĐƠN HÀNG
+    public function filter_order(Request $request)
+    {
+        $from_date = $request->input('from_date');
+        $to_date = $request->input('to_date');
+        $order_status = $request->input('order_status');
+
+        $query = DB::table('orders')->join('user', 'user.user_id', '=', 'orders.user_id')
+            ->select('orders.*', 'user.username');
+
+        if ($from_date && $to_date) {
+            $query->whereDate('orders.order_date', '>=', $from_date)
+                ->whereDate('orders.order_date', '<=', $to_date);
+        }
+
+        if ($order_status) {
+            $query->where('orders.order_status', $order_status);
+        }
+
+        $all_order = $query->paginate(10);
+
+        return view('admin.manage_order')->with('all_order', $all_order);
     }
 }

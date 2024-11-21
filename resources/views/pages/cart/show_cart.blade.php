@@ -63,12 +63,21 @@
                                 </td>
                                 <td>
                                     @if (Session::has('coupon'))
-                                        @foreach (Session::get('coupon') as $coupon)
-                                            <span id="discount-amount">{{ $coupon['discount'] }}%</span>
-                                        @endforeach
+                                        @php
+                                            $coupons = Session::get('coupon');
+                                        @endphp
+
+                                        @if (is_array($coupons))
+                                            @foreach ($coupons as $coupon)
+                                                <span id="discount-amount">{{ $coupon['discount'] }}%</span>
+                                            @endforeach
+                                        @else
+                                            <span id="discount-amount">0%</span>
+                                        @endif
                                     @else
                                         <span id="discount-amount">0%</span>
                                     @endif
+
                                 </td>
                                 <td class="cart_total">
                                     <p class="cart_total_price">

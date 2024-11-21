@@ -182,6 +182,11 @@ Route::post('/apply-coupon', [AdminController::class, 'apply_coupon']);
 Route::get('/login-google', [AdminController::class, 'login_google']);
 Route::get('/trang-chu/google/callback', [AdminController::class, 'callback_google']);
 
+// LỌC ĐƠN HÀNG
+Route::get('/filter-order', [AdminController::class, 'filter_order']);
+
+
+
 // Route::get('/test-email', function () {
 //     $request = new \Illuminate\Http\Request();
 //     $request->merge(['email' => 'mongdu1979@gmail.com']);

@@ -112,18 +112,14 @@
                         @endphp
                         <tbody>
                             @php
-                                $sub_total = 0;
                                 $total_before_discount = 0;
-                                $total = 0;
+                                $discount_amount = 0;
                             @endphp
+
                             @foreach ($order_details as $item)
                                 @php
                                     $sub_total = $item->order_details_quantity * $item->book_price;
                                     $total_before_discount += $sub_total;
-                                    $total += $sub_total;
-                                    if (isset($discount) && $discount > 0) {
-                                        $total -= $sub_total * ($discount / 100);
-                                    }
                                 @endphp
                                 <tr style="text-align: center">
                                     <td style="text-align: center">{{ limitWords($item->book_name, 5) }}</td>
@@ -135,11 +131,26 @@
                                 </tr>
                             @endforeach
 
+                            @php
+                                if (isset($discount) && $discount > 0) {
+                                    $discount_amount = $total_before_discount * ($discount / 100);
+                                }
+                                $total = $total_before_discount - $discount_amount;
+                            @endphp
+
                             <tr>
                                 <td colspan="4" align="left" style="font-weight:bold; font-size:20px; color: red">
                                     TỔNG TIỀN TRƯỚC GIẢM GIÁ:
                                     <span style="float: right">
                                         {{ number_format($total_before_discount, 0, ',', '.') }} VNĐ
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" align="left" style="font-weight:bold; font-size:20px; color: red">
+                                    TIỀN GIẢM GIÁ:
+                                    <span style="float: right">
+                                        {{ number_format($discount_amount, 0, ',', '.') }} VNĐ
                                     </span>
                                 </td>
                             </tr>

@@ -72,8 +72,9 @@
                                 </td>
                                 <td>
                                     <?php $coupon = Session::get('coupon'); ?>
-                                    {{ $coupon ? $coupon['discount'] : '0' }}%
+                                    {{ isset($coupon[0]['discount']) ? $coupon[0]['discount'] : '0' }}%
                                 </td>
+
                                 <td class="cart_total">
                                     <p class="cart_total_price">
                                         {{ number_format($value_content->price * $value_content->qty, 0, ',', '.') }} VNĐ
@@ -86,6 +87,25 @@
                                 </td>
                             </tr>
                         @endforeach
+                        <tr>
+                            <td colspan="12" class="text-end">
+                                <div class="alert alert-info" role="alert"
+                                    style="font-size: 24px; font-weight: bold; color: red; background-color: #f8d7da; border-color: #f5c6cb;">
+                                    Tổng tiền:
+                                    {{ number_format(
+                                        $content->sum(function ($item) {
+                                            return $item->price * $item->qty;
+                                        }),
+                                        0,
+                                        ',',
+                                        '.',
+                                    ) }}
+                                    VNĐ
+                                </div>
+                            </td>
+                        </tr>
+
+
                     </tbody>
                 </table>
             </div>

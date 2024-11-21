@@ -5,8 +5,30 @@
             <div class="panel-heading" style="font-weight: bold">
                 LIỆT KÊ ĐƠN HÀNG
             </div>
-            <div class="row w3-res-tb">
+            {{-- LỌC ĐƠN HÀNG --}}
+            <div class="col-sm-9 m-b-xs" style="margin-bottom:40px;margin-top: 20px">
+                <form action="{{ URL::to('/filter-order') }}" method="GET" class="form-inline">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="from_date" class="form-label">Từ ngày</label>
+                        <input type="date" class="form-control" id="from_date" name="from_date">
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2" style="margin-left: 10px">
+                        <label for="to_date" class="form-label">Đến ngày</label>
+                        <input type="date" class="form-control" id="to_date" name="to_date">
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2" style="margin-left: 15px">
+                        <select class="form-control" id="order_status" name="order_status">
+                            <option value="">Chọn trạng thái</option>
+                            <option value="Processing">Đơn mới</option>
+                            <option value="Delivered">Đã xử lý</option>
+                            <option value="Cancelled">Đã hủy</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Lọc</button>
+                </form>
+            </div>
 
+            <div class="row w3-res-tb">
                 <div class="col-sm-5">
                 </div>
                 <div class="col-sm-7">
