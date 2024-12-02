@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('user_id')->index('user_id');
             $table->integer('payment_id')->index('book_id');
             $table->integer('shipping_id')->index('shipping_id');
-            $table->integer('coupon_id')->index('coupon_id');
+            $table->integer('coupon_id')->nullable()->index('coupon_id');
             $table->string('code_order', 20)->unique('code_order');
             $table->dateTime('order_date');
             $table->enum('order_status', ['Processing', 'Delivered', 'Cancelled'])->default('Processing');

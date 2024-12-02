@@ -960,7 +960,7 @@ class AdminController extends Controller
             return redirect('/trang-chu')->with('message', 'Đăng nhập bằng tài khoản Google <span style="color:green">' . $account_name->email . '</span> thành công');
         }
 
-        return redirect('/dang-nhap')->with('error', 'Có lỗi xảy ra khi đăng nhập bằng tài khoản Google.');
+        return redirect('/login-checkout')->with('error', 'Có lỗi xảy ra khi đăng nhập bằng tài khoản Google.');
     }
     public function findOrCreateUser($users)
     {

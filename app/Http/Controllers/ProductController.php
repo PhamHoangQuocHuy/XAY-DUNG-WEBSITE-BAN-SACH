@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Redirect;
 
 class ProductController extends Controller
 {
-    // Kiểm tra đăng nhập không cho truy cập thẳng
     public function add_book()
     {
         $category_book = DB::table('category')
@@ -41,7 +40,7 @@ class ProductController extends Controller
                 'supplier.supplier_email',
                 'supplier.supplier_address'
             )
-            ->paginate(6); 
+            ->paginate(3); 
 
         // Hàm giới hạn từ
         $limitWordsFunc = function ($string, $word_limit) {

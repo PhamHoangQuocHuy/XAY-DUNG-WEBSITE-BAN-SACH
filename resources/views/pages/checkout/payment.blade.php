@@ -76,10 +76,16 @@
                                 </td>
 
                                 <td class="cart_total">
+                                    <?php
+                                    $discount = isset($coupon[0]['discount']) ? $coupon[0]['discount'] / 100 : 0;
+                                    $item_total = $value_content->price * $value_content->qty;
+                                    $discounted_total = $item_total - ($item_total * $discount);
+                                    ?>
                                     <p class="cart_total_price">
-                                        {{ number_format($value_content->price * $value_content->qty, 0, ',', '.') }} VNĐ
+                                        {{ number_format($discounted_total, 0, ',', '.') }} VNĐ
                                     </p>
                                 </td>
+                                
                                 <td class="cart_delete">
                                     <a class="cart_quantity_delete"
                                         href="{{ URL::to('/delete-to-cart/' . $value_content->rowId) }}"><i
@@ -92,20 +98,16 @@
                                 <div class="alert alert-info" role="alert"
                                     style="font-size: 24px; font-weight: bold; color: red; background-color: #f8d7da; border-color: #f5c6cb;">
                                     Tổng tiền:
-                                    {{ number_format(
-                                        $content->sum(function ($item) {
-                                            return $item->price * $item->qty;
-                                        }),
-                                        0,
-                                        ',',
-                                        '.',
-                                    ) }}
-                                    VNĐ
+                                    <?php
+                                    $overall_total = $content->sum(function ($item) use ($discount) {
+                                        $item_total = $item->price * $item->qty;
+                                        return $item_total - ($item_total * $discount);
+                                    });
+                                    ?>
+                                    {{ number_format($overall_total, 0, ',', '.') }} VNĐ
                                 </div>
                             </td>
-                        </tr>
-
-
+                        </tr>                        
                     </tbody>
                 </table>
             </div>

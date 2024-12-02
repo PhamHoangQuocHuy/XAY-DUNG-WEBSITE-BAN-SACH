@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('shipping_address');
             $table->char('shipping_phone', 10);
             $table->string('shipping_email', 100);
-            $table->text('shipping_notes');
+            $table->text('shipping_notes')->nullable();
         });
     }
 

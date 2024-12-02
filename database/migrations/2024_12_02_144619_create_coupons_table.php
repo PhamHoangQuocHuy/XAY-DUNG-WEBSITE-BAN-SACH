@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('coupon_id', true);
             $table->string('coupon_code', 15)->unique('coupon_code');
             $table->integer('discount');
-            $table->date('expiration_date')->nullable();
+            $table->date('expiration_date');
             $table->enum('coupon_status', ['active', 'inactive'])->nullable()->default('active');
         });
     }

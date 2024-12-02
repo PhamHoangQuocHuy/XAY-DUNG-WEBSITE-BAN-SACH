@@ -156,14 +156,4 @@ class SupplierController extends Controller
         return view('admin.all_supplier')
             ->with('all_supplier', $search_supplier);
     }
-    // XÓA THEO CB
-    public function deleteSelectedSuppliers(Request $request)
-    {
-        $ids = $request->input('suppliers');
-        if ($ids) {
-            DB::table('supplier')->whereIn('supplier_id', $ids)->delete();
-            return redirect()->back()->with('success', 'Các mục đã được xóa thành công.');
-        }
-        return redirect()->back()->with('error', 'Không có mục nào được chọn.');
-    }
 }
