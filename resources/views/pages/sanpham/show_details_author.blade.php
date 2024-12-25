@@ -75,6 +75,7 @@
                     <p><b>Nhà xuất bản:</b> {{ $value_author->publisher }}</p>
                     <p><b>Ngày xuất bản:</b> {{ date('d/m/Y', strtotime($value_author->publication_date)) }}</p>
                     <p><b>Ngôn ngữ:</b> {{ $value_author->language }}</p>
+                    <p><b>Số lượng sách:</b> {{ $value_author->quantity }}</p>
                     <p><b>Từ khóa liên quan:</b> {{ $value_author->tags }}</p>
 
                     <a href=""><img src="images/product-details/share.png" class="share img-responsive"

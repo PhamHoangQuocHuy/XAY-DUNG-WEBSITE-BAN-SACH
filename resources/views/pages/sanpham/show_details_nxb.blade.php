@@ -75,6 +75,7 @@
                     <p><b>Nhà xuất bản:</b> {{ $value_nxb->publisher }}</p>
                     <p><b>Ngày xuất bản:</b> {{ date('d/m/Y', strtotime($value_nxb->publication_date)) }}</p>
                     <p><b>Ngôn ngữ:</b> {{ $value_nxb->language }}</p>
+                    <p><b>Số lượng sách:</b> {{ $value_nxb->quantity }}</p>
                     <p><b>Từ khóa liên quan:</b> {{ $value_nxb->tags }}</p>
 
                     <a href=""><img src="images/product-details/share.png" class="share img-responsive"

@@ -1,5 +1,12 @@
 @extends('admin_layout')
 @section('admin_content')
+    {{-- THÔNG BÁO --}}
+    @if (session('error'))
+        <div class="alert alert-danger"> {{ session('error') }} </div>
+    @endif
+    @if (session('success'))
+        <div class="alert alert-success"> {{ session('success') }} </div>
+    @endif
     {{-- THÔNG TIN TÀI KHOẢN --}}
     <div class="table-agile-info">
         <div class="panel panel-default">
@@ -19,14 +26,18 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="text-align: center;align-content: center;color: black">{{ $order_info->username }}
+                            <td style="text-align: center;align-content: center;color: black">
+                                {{ $order_info->username }}
                             </td>
-                            <td style="text-align: center;align-content: center;color: black">{{ $order_info->email }}</td>
-                            <td style="text-align: center;align-content: center;color: black">{{ $order_info->fullname }}
+                            <td style="text-align: center;align-content: center;color: black">{{ $order_info->email }}
+                            </td>
+                            <td style="text-align: center;align-content: center;color: black">
+                                {{ $order_info->fullname }}
                             </td>
                             <td style="text-align: center;align-content: center;color: black">{{ $order_info->address }}
                             </td>
-                            <td style="text-align: center;align-content: center;color: black">{{ $order_info->phone }}</td>
+                            <td style="text-align: center;align-content: center;color: black">{{ $order_info->phone }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -74,7 +85,8 @@
                                 @endif
                             </td>
 
-                            <td style="text-align: center;align-content: center;color: black">{{ $order_info->code_order }}
+                            <td style="text-align: center;align-content: center;color: black">
+                                {{ $order_info->code_order }}
                             </td>
                             <td style="text-align: center;align-content: center;color: black">
                                 {{ number_format($order_info->total_price, 0, ',', '.') }}</td>
@@ -141,14 +153,16 @@
 
                         @foreach ($order_details as $item)
                             <tr>
-                                <td style="text-align: center;align-content: center;color: black">{{ $item->book_name }}
+                                <td style="text-align: center;align-content: center;color: black">
+                                    {{ $item->book_name }}
                                 </td>
                                 <td style="text-align: center;align-content: center;color: black">
                                     {{ $item->order_details_quantity }}</td>
                                 <td style="text-align: center;align-content: center;color: black">
                                     {{ number_format($item->book_price, 0, ',', '.') }} VNĐ</td>
                                 <td style="text-align: center;align-content: center;color: black">
-                                    {{ number_format($item->book_price * $item->order_details_quantity, 0, ',', '.') }} VNĐ
+                                    {{ number_format($item->book_price * $item->order_details_quantity, 0, ',', '.') }}
+                                    VNĐ
                                 </td>
                             </tr>
                         @endforeach

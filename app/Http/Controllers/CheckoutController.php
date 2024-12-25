@@ -101,24 +101,22 @@ class CheckoutController extends Controller
     // KHI NHẤN THANH TOÁN BÊN GIỎ HÀNG
     public function checkout()
     {
-
         $category_book = DB::table('category')
             ->where('status', 'active')
             ->orderBy('category_id', 'asc')
             ->get();
-
+    
         $tacgia_book = DB::table('author')
             ->orderBy('author_id', 'asc')
             ->get();
-
-
-        // lấy sản phẩm ở trang chủ
+    
+        // Lấy sản phẩm ở trang chủ
         $all_book = DB::table('book')
             ->where('status', 'active')
             ->orderBy('book.book_id', 'asc')
             ->limit(6)
             ->get();
-
+    
         // Lấy danh sách nhà xuất bản với book_id duy nhất cho mỗi nhà xuất bản
         $all_publishers = DB::table('book')
             ->select('publisher', 'book_id')
@@ -135,7 +133,16 @@ class CheckoutController extends Controller
             }
             return $string;
         };
-
+    
+        // Kiểm tra số lượng sách trong kho trước khi thanh toán
+        $cart_items = Cart::content(); // Giả sử bạn đang sử dụng thư viện Cart và có hàm content() để lấy giỏ hàng
+        foreach ($cart_items as $item) {
+            $book = DB::table('book')->where('book_id', $item->id)->first();
+            if ($item->qty > $book->quantity) {
+                return redirect()->back()->with('error', 'Số lượng đặt sách "' . $book->book_name . '" không đủ. Vui lòng liên hệ với quản trị viên để được hỗ trợ.');
+            }
+        }
+    
         return view('pages.checkout.show_checkout')
             ->with('category', $category_book)
             ->with('tacgia_book', $tacgia_book)
@@ -143,7 +150,7 @@ class CheckoutController extends Controller
             ->with('publisher_list', $publisher_list)
             ->with('limitWordsFunc', $limitWordsFunc);
     }
-
+    
     // NHẬN THÔNG TIN GIAO HÀNG
     public function save_checkout_customer(Request $request)
     {

@@ -75,6 +75,7 @@
                     <p><b>Nhà xuất bản:</b> {{ $value_home->publisher }}</p>
                     <p><b>Ngày xuất bản:</b> {{ date('d/m/Y', strtotime($value_home->publication_date)) }}</p>
                     <p><b>Ngôn ngữ:</b> {{ $value_home->language }}</p>
+                    <p><b>Số lượng sách:</b> {{ $value_home->quantity }}</p>
                     <p><b>Từ khóa liên quan:</b> {{ $value_home->tags }}</p>
 
                 </div><!--/product-information-->

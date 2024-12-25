@@ -40,7 +40,7 @@ class ProductController extends Controller
                 'supplier.supplier_email',
                 'supplier.supplier_address'
             )
-            ->paginate(3); 
+            ->paginate(5); 
 
         // Hàm giới hạn từ
         $limitWordsFunc = function ($string, $word_limit) {
@@ -899,4 +899,5 @@ class ProductController extends Controller
             ->with('all_book', $search_product)
             ->with('limitWordsFunc', $limitWordsFunc);
     }
+    
 }

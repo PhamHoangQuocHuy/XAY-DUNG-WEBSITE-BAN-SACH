@@ -39,7 +39,7 @@
                             <td class="quantity">SỐ LƯỢNG</td>
                             <td class="price">GIẢM GIÁ</td>
                             <td class="total">TỔNG TIỀN</td>
-                            <td>THAO TÁC</td>
+                            {{-- <td>THAO TÁC</td> --}}
                         </tr>
                     </thead>
                     <tbody id="cart-contents">
@@ -86,11 +86,11 @@
                                     </p>
                                 </td>
                                 
-                                <td class="cart_delete">
+                                {{-- <td class="cart_delete">
                                     <a class="cart_quantity_delete"
                                         href="{{ URL::to('/delete-to-cart/' . $value_content->rowId) }}"><i
                                             class="fa fa-times"></i></a>
-                                </td>
+                                </td> --}}
                             </tr>
                         @endforeach
                         <tr>

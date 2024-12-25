@@ -73,6 +73,8 @@ class AdminController extends Controller
         $this->AuthLogin();
         Session::put('username', null);
         Session::put('user_id', null);
+        Session::forget('coupon');
+
         Session::flush();
         return Redirect::to('/admin');
     }
@@ -136,9 +138,34 @@ class AdminController extends Controller
         if ($order->order_status != 'Processing') {
             return redirect()->back()->with('error', 'Chỉ có thể thay đổi trạng thái từ Đơn mới.');
         }
+    
+        // Kiểm tra số lượng sách trong kho
+        $order_details = DB::table('order_details')->where('order_id', $order_id)->get();
+        foreach ($order_details as $detail) {
+            $book = DB::table('book')->where('book_id', $detail->book_id)->first();
+            $new_quantity = $book->quantity - $detail->order_details_quantity;
+            if ($new_quantity < 0) {
+                return redirect()->back()->with('error', 'Số lượng sách "' . $book->book_name . '" không đủ để xử lý đơn hàng.');
+            }
+        }
+    
+        // Cập nhật số lượng sách và trạng thái sách
+        foreach ($order_details as $detail) {
+            $book = DB::table('book')->where('book_id', $detail->book_id)->first();
+            $new_quantity = $book->quantity - $detail->order_details_quantity;
+            if ($new_quantity < 0) {
+                return redirect()->back()->with('error', 'Số lượng sách "' . $book->book_name . '" không đủ để xử lý đơn hàng.');
+            } elseif ($new_quantity == 0) {
+                DB::table('book')->where('book_id', $detail->book_id)->update(['quantity' => $new_quantity, 'status' => 'inactive']);
+                return redirect()->back()->with('success', 'Số lượng sách "' . $book->book_name . '" đã hết và trạng thái sách đã được cập nhật.');
+            } else {
+                DB::table('book')->where('book_id', $detail->book_id)->update(['quantity' => $new_quantity]);
+            }
+        }
+    
         // Cập nhật trạng thái đơn hàng
         DB::table('orders')->where('order_id', $order_id)->update(['order_status' => $request->order_status]);
-
+    
         // Lấy thông tin người đặt hàng 
         $shipping_info = DB::table('shipping')
             ->where('shipping_id', $order->shipping_id)
@@ -159,7 +186,7 @@ class AdminController extends Controller
             'order_code' => $order->code_order,
             'order_total' => $order->order_total,
             'coupons' => $coupon_info,
-            'order_details' => DB::table('order_details')->where('order_id', $order_id)->get(),
+            'order_details' => $order_details,
             'payment_method' => DB::table('payment')
                 ->where('payment_id', $order->payment_id)
                 ->value('payment_method'),
@@ -181,7 +208,7 @@ class AdminController extends Controller
         });
         return redirect()->back()->with('success', 'Đã cập nhật trạng thái đơn hàng và gửi email thông báo.');
     }
-
+        
     // ACCOUNT (USER)
     public function manage_user()
     {
@@ -1078,4 +1105,5 @@ class AdminController extends Controller
 
         return view('admin.manage_order')->with('all_order', $all_order);
     }
+
 }
