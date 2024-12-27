@@ -5,6 +5,18 @@
             <div class="panel-heading" style="font-weight: bold">
                 LIỆT KÊ ĐƠN HÀNG
             </div>
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             {{-- LỌC ĐƠN HÀNG --}}
             <div class="col-sm-9 m-b-xs" style="margin-bottom:40px;margin-top: 20px">
                 <form action="{{ URL::to('/filter-order') }}" method="GET" class="form-inline">

@@ -105,9 +105,15 @@ class AuthorController extends Controller
     public function delete_author($author_id)
     {
         $this->AuthLogin();
-        DB::table('author')->where('author_id', $author_id)->delete();
-        Session::put('message', 'Xóa tác giả thành công');
-        return Redirect::to('/all-author');
+        $book = DB::table('book')->where('author_id', $author_id)->exists();
+        if ($book) {
+            Session::put('message', 'Không xóa được do có sách đang bày bán với tên tác giả này rồi');
+            return Redirect::to('/all-author');
+        } else {
+            DB::table('author')->where('author_id', $author_id)->delete();
+            Session::put('message', 'Xóa tác giả thành công');
+            return Redirect::to('/all-author');
+        }
     }
 
     //END FUNCTION ADMIN PAGE

@@ -68,6 +68,7 @@ class AdminController extends Controller
             return Redirect::to('/admin');
         }
     }
+    // ĐĂNG XUẤT ADMIN
     public function logout()
     {
         $this->AuthLogin();
@@ -86,7 +87,7 @@ class AdminController extends Controller
         $all_order = DB::table('orders')
             ->join('user', 'user.user_id', '=', 'orders.user_id')
             ->select('orders.*', 'user.username')
-            ->orderBy('orders.order_id', 'asc')
+            ->orderBy('order_date', 'desc')
             ->paginate(10);
 
         $manager_order = view('admin.manage_order')
@@ -95,6 +96,7 @@ class AdminController extends Controller
         return view('admin_layout')
             ->with('admin.manage_order', $manager_order);
     }
+    // XEM CHI TIẾT ĐƠN HÀNG
     public function view_order($order_id)
     {
         // Lấy thông tin đơn hàng, người dùng và vận chuyển
@@ -118,8 +120,14 @@ class AdminController extends Controller
             ->with('order_info', $order_info)
             ->with('order_details', $order_details);
     }
+    // XÓA ĐƠN HÀNG
     public function delete_order($order_id)
     {
+        // Kiểm tra trạng thái đơn hàng
+        $order = DB::table('orders')->where('order_id', $order_id)->first();
+        if ($order->order_status != 'Cancelled') {
+            return Redirect::to('/manage-order')->with('error', 'Chỉ có thể xóa đơn hàng khi trạng thái là đã hủy');
+        }
 
         // Xóa các chi tiết đơn hàng liên quan trước
         DB::table('order_details')->where('order_id', $order_id)->delete();
@@ -138,7 +146,7 @@ class AdminController extends Controller
         if ($order->order_status != 'Processing') {
             return redirect()->back()->with('error', 'Chỉ có thể thay đổi trạng thái từ Đơn mới.');
         }
-    
+
         // Kiểm tra số lượng sách trong kho
         $order_details = DB::table('order_details')->where('order_id', $order_id)->get();
         foreach ($order_details as $detail) {
@@ -148,7 +156,7 @@ class AdminController extends Controller
                 return redirect()->back()->with('error', 'Số lượng sách "' . $book->book_name . '" không đủ để xử lý đơn hàng.');
             }
         }
-    
+
         // Cập nhật số lượng sách và trạng thái sách
         foreach ($order_details as $detail) {
             $book = DB::table('book')->where('book_id', $detail->book_id)->first();
@@ -162,10 +170,10 @@ class AdminController extends Controller
                 DB::table('book')->where('book_id', $detail->book_id)->update(['quantity' => $new_quantity]);
             }
         }
-    
+
         // Cập nhật trạng thái đơn hàng
         DB::table('orders')->where('order_id', $order_id)->update(['order_status' => $request->order_status]);
-    
+
         // Lấy thông tin người đặt hàng 
         $shipping_info = DB::table('shipping')
             ->where('shipping_id', $order->shipping_id)
@@ -208,7 +216,7 @@ class AdminController extends Controller
         });
         return redirect()->back()->with('success', 'Đã cập nhật trạng thái đơn hàng và gửi email thông báo.');
     }
-        
+
     // ACCOUNT (USER)
     public function manage_user()
     {
@@ -251,13 +259,31 @@ class AdminController extends Controller
 
         return Redirect::to('manage-user');
     }
-
+    // XÓA NGƯỜI DÙNG
     public function delete_user($user_id)
     {
-
         $user = DB::table('user')->where('user_id', $user_id)->first();
 
+        // Kiểm tra nếu người dùng không phải admin
         if ($user && $user->role != 'admin') {
+
+            // ràng buộc không xóa người đang có đơn hàng
+            $has_order = DB::table('orders')->where('user_id', $user_id)->where('order_status', 'Processing')->exists();
+
+            if ($has_order) {
+                Session::put('message', 'Không thể xóa người dùng vì đang có đơn hàng');
+                return Redirect::to('manage-user');
+            }
+
+            // ràng buộc không xóa người đã đánh giá bình luận
+            $has_review = DB::table('review')->where('user_id', $user_id)->exists();
+
+            if ($has_review) {
+                Session::put('message', 'Người này có thể đã để lại đánh giá bình luận, không thể xóa');
+                return Redirect::to('manage-user');
+            }
+
+            // Xóa người dùng
             DB::table('user')->where('user_id', $user_id)->delete();
             Session::put('success', 'Người dùng đã được xóa thành công');
         } else {
@@ -677,6 +703,7 @@ class AdminController extends Controller
         // Lấy tất cả các đơn hàng của user_id 
         $orders = DB::table('orders')
             ->where('user_id', $user_id)
+            ->orderBy('order_date', 'desc')
             ->get();
         // Truyền dữ liệu đơn hàng sang view 
         return view('pages.user.history', [
@@ -821,10 +848,14 @@ class AdminController extends Controller
             'expiration_date' => $request->expiration_date,
             'coupon_status' => $request->coupon_status,
         ];
-
-        DB::table('coupons')->insert($data);
-        Session::put('message', 'Thêm coupon thành công');
-        return Redirect::to('/add-coupon');
+        if ($data['discount'] < 0 || $data['discount'] > 100) {
+            Session::put('message', 'Phần trăm giảm giá sai');
+            return Redirect::to('/add-coupon');
+        } else {
+            DB::table('coupons')->insert($data);
+            Session::put('message', 'Thêm coupon thành công');
+            return Redirect::to('/add-coupon');
+        }
     }
     public function all_coupon()
     {
@@ -887,6 +918,17 @@ class AdminController extends Controller
     public function delete_coupon($cp_id)
     {
         $this->AuthLogin();
+
+        // Kiểm tra xem mã coupon có được sử dụng trong đơn hàng nào chưa
+        $used_coupon = DB::table('orders')->where('coupon_id', $cp_id)->exists();
+
+        if ($used_coupon) {
+            // Thông báo lỗi nếu mã coupon đã được sử dụng
+            Session::put('message', 'Coupon này đã có người sử dụng trong đơn hàng, không thể xóa');
+            return Redirect::to('/all-coupon');
+        }
+
+        // Xóa mã coupon nếu chưa được sử dụng trong đơn hàng nào
         DB::table('coupons')->where('coupon_id', $cp_id)->delete();
         Session::put('message', 'Xóa coupon thành công');
         return Redirect::to('/all-coupon');
@@ -1105,5 +1147,4 @@ class AdminController extends Controller
 
         return view('admin.manage_order')->with('all_order', $all_order);
     }
-
 }

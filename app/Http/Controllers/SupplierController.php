@@ -123,11 +123,22 @@ class SupplierController extends Controller
     public function delete_supplier($sup_id)
     {
         $this->AuthLogin();
+    
+        // Kiểm tra nếu nhà cung cấp đang có sách đang bày bán
+        $has_books = DB::table('book')->where('supplier_id', $sup_id)->exists();
+    
+        if ($has_books) {
+            // Thông báo lỗi nếu nhà cung cấp đang có sách
+            Session::put('message', 'Không thể xóa nhà cung cấp vì đang có sách thuộc nhà cung cấp này');
+            return Redirect::to('/all-supplier');
+        }
+    
+        // Xóa nhà cung cấp nếu không có sách thuộc nhà cung cấp đó
         DB::table('supplier')->where('supplier_id', $sup_id)->delete();
         Session::put('message', 'Xóa nhà cung cấp thành công');
         return Redirect::to('/all-supplier');
     }
-    // TÌM KIẾM NHÀ CUNG CẤP
+        // TÌM KIẾM NHÀ CUNG CẤP
     public function search_supplier(Request $request)
     {
         $keywords = $request->input('query');

@@ -25,8 +25,6 @@
             {{-- TRANG SHOW_CART LẤY QUA --}}
             <div class="review-payment">
                 <h2 style="font-weight: bold">XEM LẠI GIỎ HÀNG</h2>
-                {{-- <p style="font-size: 15px;font-weight: bold;color: red;">Lưu ý: Nếu có cập nhật số lượng thì reload trang.
-                    Đến bước này out ra thì điền thông tin lại từ đầu :^</p> --}}
             </div>
             <div class="table-responsive cart_info">
                 <?php $content = Cart::content(); ?>
@@ -79,13 +77,13 @@
                                     <?php
                                     $discount = isset($coupon[0]['discount']) ? $coupon[0]['discount'] / 100 : 0;
                                     $item_total = $value_content->price * $value_content->qty;
-                                    $discounted_total = $item_total - ($item_total * $discount);
+                                    $discounted_total = $item_total - $item_total * $discount;
                                     ?>
                                     <p class="cart_total_price">
                                         {{ number_format($discounted_total, 0, ',', '.') }} VNĐ
                                     </p>
                                 </td>
-                                
+
                                 {{-- <td class="cart_delete">
                                     <a class="cart_quantity_delete"
                                         href="{{ URL::to('/delete-to-cart/' . $value_content->rowId) }}"><i
@@ -101,13 +99,17 @@
                                     <?php
                                     $overall_total = $content->sum(function ($item) use ($discount) {
                                         $item_total = $item->price * $item->qty;
-                                        return $item_total - ($item_total * $discount);
+                                        return $item_total - $item_total * $discount;
                                     });
+                                    if ($overall_total < 0) {
+                                        echo 'Đơn hàng không hợp lệ';
+                                        return redirect()->back()->with('error', 'Đơn hàng không hợp lệ.');
+                                    }
                                     ?>
                                     {{ number_format($overall_total, 0, ',', '.') }} VNĐ
                                 </div>
                             </td>
-                        </tr>                        
+                        </tr>
                     </tbody>
                 </table>
             </div>

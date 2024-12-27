@@ -127,11 +127,22 @@ class CategoryProduct extends Controller
     public function delete_category($cate_id)
     {
         $this->AuthLogin();
+    
+        // Kiểm tra nếu danh mục đang có sách thuộc danh mục đó
+        $has_books = DB::table('book')->where('category_id', $cate_id)->exists();
+    
+        if ($has_books) {
+            // Thông báo lỗi nếu danh mục đang có sách
+            Session::put('message', 'Không thể xóa danh mục vì đang có sách thuộc danh mục này');
+            return Redirect::to('all-category');
+        }
+    
+        // Xóa danh mục nếu không có sách thuộc danh mục đó
         DB::table('category')->where('category_id', $cate_id)->delete();
         Session::put('message', 'Xóa danh mục thành công');
         return Redirect::to('all-category');
     }
-
+    
     //End Function Admin Page
     public function show_category_home($category_id)
     {
@@ -214,15 +225,5 @@ class CategoryProduct extends Controller
 
         return view('admin.all_category')
             ->with('all_category', $search_category);
-    }
-    public function deleteSelectedCategories(Request $request)
-    {
-        $ids = $request->input('categories');
-        if ($ids) {
-            DB::table('category')->whereIn('category_id', $ids)->delete();
-            Session::put('message', 'Các mục đã được xóa thành công.');
-            return Redirect::to('all-category');
-        }
-        return redirect()->back()->with('error', 'Không có mục nào được chọn.');
     }
 }

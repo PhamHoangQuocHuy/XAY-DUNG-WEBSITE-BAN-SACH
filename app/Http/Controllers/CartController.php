@@ -106,7 +106,7 @@ class CartController extends Controller
     public function delete_to_cart($rowId)
     {
         Cart::remove($rowId);
-
+        // sử dụng ajax để không load lại trang
         if (request()->ajax()) {
             $totalAmount = Cart::subtotal(0, ',', '.');
             $finalAmount = Cart::subtotal(0, ',', '.');

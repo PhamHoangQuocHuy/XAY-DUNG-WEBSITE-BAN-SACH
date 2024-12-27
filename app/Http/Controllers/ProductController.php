@@ -40,7 +40,7 @@ class ProductController extends Controller
                 'supplier.supplier_email',
                 'supplier.supplier_address'
             )
-            ->paginate(5); 
+            ->paginate(5);
 
         // Hàm giới hạn từ
         $limitWordsFunc = function ($string, $word_limit) {
@@ -236,23 +236,25 @@ class ProductController extends Controller
     // XÓA SÁCH
     public function delete_book($book_id)
     {
-        // Lấy thông tin sách để lấy tên hình ảnh
-        $book = DB::table('book')->where('book_id', $book_id)->first();
+        $order_detail = DB::table('order_details')->where('book_id', $book_id)->exists();
+        if ($order_detail) {
+            Session::put('message', 'Không xóa được do có đơn hàng rồi');
+            return Redirect::to('/all-book');
+        } else {
+            // Lấy thông tin sách để lấy tên hình ảnh
+            $book = DB::table('book')->where('book_id', $book_id)->first();
+            // Kiểm tra nếu sách tồn tại và có hình ảnh
+            if ($book && !empty($book->image)) {
+                $image_path = public_path('uploads/product/' . $book->image);
 
-        // Kiểm tra nếu sách tồn tại và có hình ảnh
-        if ($book && !empty($book->image)) {
-            $image_path = public_path('uploads/product/' . $book->image);
-
-            // Kiểm tra nếu file hình ảnh tồn tại
-            if (file_exists($image_path)) {
-                // Xóa file hình ảnh
-                unlink($image_path);
+                // Kiểm tra nếu file hình ảnh tồn tại
+                if (file_exists($image_path)) {
+                    // Xóa file hình ảnh
+                    unlink($image_path);
+                }
             }
+            DB::table('book')->where('book_id', $book_id)->delete();
         }
-
-        // Xóa sách khỏi cơ sở dữ liệu
-        DB::table('book')->where('book_id', $book_id)->delete();
-
         // Thông báo thành công
         Session::put('message', 'Xóa sách thành công');
         return Redirect::to('/all-book');
@@ -899,5 +901,4 @@ class ProductController extends Controller
             ->with('all_book', $search_product)
             ->with('limitWordsFunc', $limitWordsFunc);
     }
-    
 }
